@@ -1,0 +1,7 @@
+{application, erlxml, [
+    {description, "erlxml - Erlang XML parsing library based on pugixml"},
+    {vsn, "1.0"},
+    {registered, []},
+    {applications, [kernel, stdlib]},
+    {env, []}
+]}.

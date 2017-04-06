@@ -1,0 +1,6 @@
+/.idea/
+/.rebar/
+/deps/
+/ebin/
+/erlxml_nif.xcodeproj/
+/priv/
