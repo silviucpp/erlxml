@@ -1,9 +1,3 @@
-//
-//  xmlstreamparser.cc
-//
-//  Created by silviu on 3/23/17.
-//  Copyright © 2017 silviu. All rights reserved.
-
 #include "xmlstreamparser.h"
 #include <assert.h>
 #include <algorithm>

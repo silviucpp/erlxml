@@ -1,10 +1,3 @@
-//
-//  allocators.cc
-//
-//  Created by silviu on 3/29/17.
-//  Copyright © 2017 silviu. All rights reserved.
-//
-
 #include "allocators.h"
 #include "erl_nif.h"
 

@@ -1,10 +1,3 @@
-//
-//  xmlstreamparser.h
-//
-//  Created by silviu on 3/23/17.
-//  Copyright © 2017 silviu. All rights reserved.
-//
-
 #ifndef ERLXML_C_SRC_XMLSTREAMPARSER_H_
 #define ERLXML_C_SRC_XMLSTREAMPARSER_H_
 
