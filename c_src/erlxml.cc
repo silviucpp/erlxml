@@ -216,5 +216,5 @@ ERL_NIF_TERM enif_dom_to_binary(ErlNifEnv* env, int argc, const ERL_NIF_TERM arg
     doc.document_element().print(stream, "\t", pugi::format_raw);
     std::string content = stream.str();
 
-    return make_ok_result(env, make_binary(env, content.c_str(), content.length()));
+    return make_binary(env, content.c_str(), content.length());
 }
