@@ -13,7 +13,8 @@
 
     %dom based parsing
 
-    parse/1
+    parse/1,
+    to_binary/1
 ]).
 
 new_stream(Options) ->
@@ -27,3 +28,6 @@ parse_reset(Parser, SkipRoot) ->
 
 parse(Data) ->
     erlxml_nif:dom_parse(Data).
+
+to_binary(Data) ->
+    erlxml_nif:to_binary(Data).

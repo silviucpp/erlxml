@@ -83,7 +83,8 @@ static ErlNifFunc nif_funcs[] =
     {"new_stream", 1, enif_stream_parser_new},
     {"feed_stream", 2, enif_stream_parser_feed},
     {"reset_stream", 2, enif_stream_parser_reset},
-    {"dom_parse", 1, enif_dom_parse}
+    {"dom_parse", 1, enif_dom_parse},
+    {"to_binary", 1, enif_dom_to_binary}
 };
 
 ERL_NIF_INIT(erlxml_nif, nif_funcs, on_nif_load, NULL, on_nif_upgrade, on_nif_unload)

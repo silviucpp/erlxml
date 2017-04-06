@@ -121,7 +121,7 @@ XmlStreamParser::parse_result XmlStreamParser::FeedData(const uint8_t* data, siz
     {
         buffer_.WriteBytes(data, end_stanza_index);
 
-        if(!PushStanza(const_cast<uint8_t*>(buffer_.Data()), buffer_.Length(), user_data))
+        if(!PushStanza(const_cast<uint8_t*>(buffer_.Data()), buffer_.Length(), user_data, false))
         {
             Cleanup();
             return kParseInvalidXml;
@@ -132,7 +132,7 @@ XmlStreamParser::parse_result XmlStreamParser::FeedData(const uint8_t* data, siz
     }
     else
     {
-        if(!PushStanza(const_cast<uint8_t*>(data), static_cast<size_t>(end_stanza_index), user_data))
+        if(!PushStanza(const_cast<uint8_t*>(data), static_cast<size_t>(end_stanza_index), user_data, true))
         {
             Cleanup();
             return kParseInvalidXml;
@@ -196,7 +196,7 @@ size_t XmlStreamParser::FindStanzaUpperLimit(const uint8_t* ptr, size_t size)
     return index;
 }
 
-bool XmlStreamParser::PushStanza(uint8_t* buffer, size_t length, void* user_data)
+bool XmlStreamParser::PushStanza(uint8_t* buffer, size_t length, void* user_data, bool copy)
 {
     if(skip_root_)
     {
@@ -221,7 +221,14 @@ bool XmlStreamParser::PushStanza(uint8_t* buffer, size_t length, void* user_data
 
     if(!kLookupSkipTag[buffer[skip_bytes+1]])
     {
-        if( pugi_doc_.load_buffer_inplace(buffer+skip_bytes, length).status != pugi::status_ok)
+        pugi::xml_parse_status result;
+
+        if(copy)
+            result = pugi_doc_.load_buffer(buffer+skip_bytes, length).status;
+        else
+            result = pugi_doc_.load_buffer_inplace(buffer+skip_bytes, length).status;
+
+        if(result != pugi::status_ok)
             return false;
 
         handler_(user_data, pugi_doc_);

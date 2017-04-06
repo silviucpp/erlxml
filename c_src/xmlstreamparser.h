@@ -30,7 +30,7 @@ public:
 
 private:
 
-    bool PushStanza(uint8_t* buffer, size_t length, void* user_data);
+    bool PushStanza(uint8_t* buffer, size_t length, void* user_data, bool copy);
     size_t FindStanzaUpperLimit(const uint8_t* ptr, size_t size);
     void Cleanup();
 

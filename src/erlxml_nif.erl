@@ -11,7 +11,8 @@
     new_stream/1,
     chunk_feed_stream/2,
     reset_stream/2,
-    dom_parse/1
+    dom_parse/1,
+    to_binary/1
 ]).
 
 %% nif functions
@@ -47,6 +48,9 @@ reset_stream(_Parser, _SkipRoot) ->
     ?NOT_LOADED.
 
 dom_parse(_Data) ->
+    ?NOT_LOADED.
+
+to_binary(_Data) ->
     ?NOT_LOADED.
 
 chunk_feed_stream(Parser, Data) ->

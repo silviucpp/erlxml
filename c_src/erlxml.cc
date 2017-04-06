@@ -2,12 +2,12 @@
 #include "erlxml_nif.h"
 #include "nif_utils.h"
 #include "xmlstreamparser.h"
+#include "element_encoder.h"
 
-//instead reversing the list in erlang we traverse the dom in reverse order
-#define REVERSE_ITERATION
+#include <sstream>
 
-static const char kErrorFailedToAllocXmlStream[] = "failed to alloc stream object";
-static const char kErrorBadOwner[] = "erlxml session was created on a different process";
+const char kErrorFailedToAllocXmlStream[] = "failed to alloc stream object";
+const char kErrorBadOwner[] = "erlxml session was created on a different process";
 
 struct enif_erlxml_stream
 {
@@ -41,68 +41,10 @@ void enif_stream_parser_free(ErlNifEnv* env, void* obj)
         delete stream->parser;
 }
 
-void node_walker(ErlNifEnv*env, const pugi::xml_node& node, ERL_NIF_TERM* list)
-{
-    switch(node.type())
-    {
-        case pugi::node_element:
-        {
-            ERL_NIF_TERM name = make_binary(env, node.name(), strlen(node.name()));
-            ERL_NIF_TERM attrs = enif_make_list(env, 0);
-            ERL_NIF_TERM childrens = enif_make_list(env, 0);
-
-#if defined(REVERSE_ITERATION)
-            for (pugi::xml_attribute_iterator ait = node.attributes_end(); ait != node.attributes_begin();)
-            {
-                --ait;
-                ERL_NIF_TERM key = make_binary(env, ait->name(), strlen(ait->name()));
-                ERL_NIF_TERM value = make_binary(env, ait->value(), strlen(ait->value()));
-                attrs = enif_make_list_cell(env, enif_make_tuple2(env, key, value), attrs);
-            }
-#else
-            for (pugi::xml_attribute attr : node.attributes())
-            {
-                ERL_NIF_TERM key = make_binary(env, attr.name(), strlen(attr.name()));
-                ERL_NIF_TERM value = make_binary(env, attr.value(), strlen(attr.value()));
-                attrs = enif_make_list_cell(env, enif_make_tuple2(env, key, value), attrs);
-            }
-
-            enif_make_reverse_list(env, attrs, &attrs);
-#endif
-
-#if defined(REVERSE_ITERATION)
-            for (pugi::xml_node_iterator nit = node.end(); nit != node.begin();)
-            {
-                --nit;
-                node_walker(env, *nit, &childrens);
-            }
-#else
-            for (pugi::xml_node child: node.children())
-                node_walker(env, child, &childrens);
-
-            enif_make_reverse_list(env, childrens, &childrens);
-#endif
-
-            ERL_NIF_TERM xmlel = enif_make_tuple4(env, ATOMS.atomXmlel, name, attrs, childrens);
-            *list = enif_make_list_cell(env, xmlel, *list);
-            break;
-        }
-
-        case pugi::node_pcdata:
-        {
-            ERL_NIF_TERM value = make_binary(env, node.value(), strlen(node.value()));
-            *list = enif_make_list_cell(env, enif_make_tuple2(env, ATOMS.atomXmlcdata, value), *list);
-            break;
-        }
-
-        default:;
-    }
-}
-
 void handle_stanza(void* user_data, pugi::xml_document& doc)
 {
     parser_data* wp = reinterpret_cast<parser_data*>(user_data);
-    node_walker(wp->env, doc.first_child(), &wp->term);
+    pugi2term(wp->env, doc.first_child(), &wp->term);
 }
 
 ERL_NIF_TERM parse_stream_options(ErlNifEnv* env, ERL_NIF_TERM list, stream_options* opts)
@@ -246,11 +188,11 @@ ERL_NIF_TERM enif_dom_parse(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 
     pugi::xml_document pugi_doc;
 
-    if(pugi_doc.load_buffer_inplace(bin.data, bin.size, pugi::parse_default).status != pugi::status_ok)
+    if(pugi_doc.load_buffer(bin.data, bin.size, pugi::parse_default).status != pugi::status_ok)
         return make_error(env, ATOMS.atomErrorInvalidStanza);
 
     ERL_NIF_TERM list = enif_make_list(env, 0);
-    node_walker(env, pugi_doc.first_child(), &list);
+    pugi2term(env, pugi_doc.first_child(), &list);
 
     ERL_NIF_TERM head;
     ERL_NIF_TERM tail;
@@ -261,3 +203,18 @@ ERL_NIF_TERM enif_dom_parse(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
     return make_ok_result(env, head);
 }
 
+ERL_NIF_TERM enif_dom_to_binary(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
+{
+    UNUSED(argc);
+
+    pugi::xml_document doc;
+
+    if(!term2pugi(env, argv[0], doc))
+        return make_badarg(env);
+
+    std::ostringstream stream;
+    doc.document_element().print(stream, "\t", pugi::format_raw);
+    std::string content = stream.str();
+
+    return make_ok_result(env, make_binary(env, content.c_str(), content.length()));
+}
