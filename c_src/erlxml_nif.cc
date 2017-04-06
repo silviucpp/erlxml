@@ -32,28 +32,28 @@ void open_resources(ErlNifEnv* env, erlxml_data* data)
 int on_nif_load(ErlNifEnv* env, void** priv_data, ERL_NIF_TERM load_info)
 {
     UNUSED(load_info);
-    
+
     pugi::set_memory_management_functions(erlxml_allocate, erlxml_deallocate);
-    
+
     ATOMS.atomOk = make_atom(env, kAtomOk);
     ATOMS.atomError = make_atom(env, kAtomError);
     ATOMS.atomTrue = make_atom(env, kAtomTrue);
     ATOMS.atomFalse = make_atom(env, kAtomFalse);
     ATOMS.atomOptions = make_atom(env, kAtomOptions);
     ATOMS.atomBadArg = make_atom(env, kAtomBadArg);
-    
+
     ATOMS.atomErrorInvalidStanza = make_atom(env, kAtomErrorInvalidStanza);
     ATOMS.atomErrorMaxStanzaLimitHit = make_atom(env, kAtomErrorMaxStanzaLimitHit);
-    
+
     ATOMS.atomSkipRootElement = make_atom(env, kAtomSkipRootElement);
     ATOMS.atomStanzaLimit = make_atom(env, kAtomStanzaLimit);
-    
+
     ATOMS.atomXmlel = make_atom(env, kAtomXmlel);
     ATOMS.atomXmlcdata = make_atom(env, kAtomXmlcdata);
 
     erlxml_data* data = static_cast<erlxml_data*>(enif_alloc(sizeof(erlxml_data)));
     open_resources(env, data);
-    
+
     *priv_data = data;
     return 0;
 }
@@ -61,7 +61,7 @@ int on_nif_load(ErlNifEnv* env, void** priv_data, ERL_NIF_TERM load_info)
 void on_nif_unload(ErlNifEnv* env, void* priv_data)
 {
     UNUSED(env);
-    
+
     erlxml_data* data = static_cast<erlxml_data*>(priv_data);
     enif_free(data);
 }
@@ -70,16 +70,16 @@ int on_nif_upgrade(ErlNifEnv* env, void** priv, void** old_priv, ERL_NIF_TERM in
 {
     UNUSED(old_priv);
     UNUSED(info);
-    
+
     erlxml_data* data = static_cast<erlxml_data*>(enif_alloc(sizeof(erlxml_data)));
     open_resources(env, data);
-    
+
     *priv = data;
     return 0;
 }
 
 static ErlNifFunc nif_funcs[] =
-{    
+{
     {"new_stream", 1, enif_stream_parser_new},
     {"feed_stream", 2, enif_stream_parser_feed},
     {"reset_stream", 2, enif_stream_parser_reset},

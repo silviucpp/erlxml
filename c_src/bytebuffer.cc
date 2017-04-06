@@ -24,7 +24,7 @@ void ByteBuffer::Construct(const uint8_t* bytes, size_t len)
     start_ = 0;
     size_ = len;
     bytes_ = static_cast<uint8_t*>(erlxml_allocate(size_));
-    
+
     if (bytes)
     {
         end_ = len;
@@ -60,7 +60,7 @@ uint8_t* ByteBuffer::ReserveWriteBuffer(size_t len)
 {
     if (Length() + len > Capacity())
         Resize(Length() + len);
-    
+
     uint8_t* start = bytes_ + end_;
     end_ += len;
     return start;
@@ -84,7 +84,7 @@ void ByteBuffer::Resize(size_t size)
         erlxml_deallocate(bytes_);
         bytes_ = new_bytes;
     }
-    
+
     start_ = 0;
     end_ = len;
 }

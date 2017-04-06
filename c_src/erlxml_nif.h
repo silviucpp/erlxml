@@ -11,20 +11,20 @@ struct atoms
     ERL_NIF_TERM atomFalse;
     ERL_NIF_TERM atomBadArg;
     ERL_NIF_TERM atomOptions;
-    
+
     //errors
     ERL_NIF_TERM atomErrorInvalidStanza;
     ERL_NIF_TERM atomErrorMaxStanzaLimitHit;
-    
+
     //options
     ERL_NIF_TERM atomSkipRootElement;
     ERL_NIF_TERM atomStanzaLimit;
-    
+
     //elements
-    
+
     ERL_NIF_TERM atomXmlel;
     ERL_NIF_TERM atomXmlcdata;
-    
+
 };
 
 struct erlxml_data

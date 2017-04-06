@@ -73,7 +73,7 @@ XmlStreamParser::XmlStreamParser(bool skip_root, size_t max_stanza, XmlStreamEle
 
 XmlStreamParser::~XmlStreamParser()
 {
-    
+
 }
 
 void XmlStreamParser::Cleanup()
@@ -89,12 +89,12 @@ XmlStreamParser::parse_result XmlStreamParser::FeedData(const uint8_t* data, siz
 {
     if(length == 0)
         return kParseOk;
-    
+
     size_t buffered_bytes = buffer_.Length();
-    
+
     size_t remaining_stanza_bytes = max_stanza_bytes_ > 0 ? std::min(max_stanza_bytes_ - buffered_bytes, length) : length;
     size_t end_stanza_index = FindStanzaUpperLimit(data, remaining_stanza_bytes);
-    
+
     if(end_stanza_index == remaining_stanza_bytes)
     {
         if(remaining_stanza_bytes != length)
@@ -102,7 +102,7 @@ XmlStreamParser::parse_result XmlStreamParser::FeedData(const uint8_t* data, siz
             Cleanup();
             return kParseStanzaLimitHit;
         }
-        
+
         if(nested_level_ == -1 && skip_root_ == false)
         {
             //finished the stream
@@ -114,19 +114,19 @@ XmlStreamParser::parse_result XmlStreamParser::FeedData(const uint8_t* data, siz
         last_char_ = data[length-1];
         return kParseOk;
     }
-    
+
     end_stanza_index++;
-    
+
     if(buffered_bytes)
     {
         buffer_.WriteBytes(data, end_stanza_index);
-        
+
         if(!PushStanza(const_cast<uint8_t*>(buffer_.Data()), buffer_.Length(), user_data))
         {
             Cleanup();
             return kParseInvalidXml;
         }
-        
+
         buffer_.Clear();
         buffer_.Resize(kDefaultBufferSize);
     }
@@ -138,41 +138,41 @@ XmlStreamParser::parse_result XmlStreamParser::FeedData(const uint8_t* data, siz
             return kParseInvalidXml;
         }
     }
-    
+
     size_t remaining = length - end_stanza_index;
 
     if(remaining)
         return FeedData(data+end_stanza_index, remaining, user_data);
-    
+
     return kParseOk;
 }
 
 size_t XmlStreamParser::FindStanzaUpperLimit(const uint8_t* ptr, size_t size)
 {
     size_t index = 0;
-    
+
     if(last_char_ == '<' && ptr[index] == '/')
     {
         end_begin_detected_ = true;
         index++;
     }
-    
+
     for(; index < size; index++)
     {
         switch (ptr[index])
         {
             case '<':
-                
+
                 if(index < size -1 && ptr[index+1] == '/')
                 {
                     end_begin_detected_ = true;
                     index++;
                 }
-                
+
                 break;
 
             case '>':
-                
+
                 if(end_begin_detected_)
                 {
                     nested_level_--;
@@ -181,18 +181,18 @@ size_t XmlStreamParser::FindStanzaUpperLimit(const uint8_t* ptr, size_t size)
                 else
                 {
                     int8_t last = index > 0 ? ptr[index-1] : last_char_;
-                    
+
                     if(kLookupSkipTag[last] == 0)
                         nested_level_++;
                 }
-                
+
                 if(nested_level_ == 0)
                     return index;
-                
+
                 break;
         }
     }
-    
+
     return index;
 }
 
@@ -206,27 +206,27 @@ bool XmlStreamParser::PushStanza(uint8_t* buffer, size_t length, void* user_data
         last_char_ = 0;
         return true;
     }
- 
+
     size_t skip_bytes = 0;
-    
+
     while (kLookupWhitespace[static_cast<unsigned char>(buffer[skip_bytes])])
         skip_bytes++;
-    
+
     length -= skip_bytes;
-    
+
     if(length < 4)
         return false;
-    
+
     // don't parse anything in case we have a header or comment as first element
-    
+
     if(!kLookupSkipTag[buffer[skip_bytes+1]])
     {
         if( pugi_doc_.load_buffer_inplace(buffer+skip_bytes, length).status != pugi::status_ok)
             return false;
-    
+
         handler_(user_data, pugi_doc_);
     }
-    
+
     end_begin_detected_ = false;
     last_char_ = 0;
     assert(nested_level_ == 0);
@@ -237,7 +237,7 @@ void XmlStreamParser::Reset(bool skip_root)
 {
     skip_root_ = skip_root;
     Cleanup();
-    
+
     if(skip_root_)
         nested_level_ = -1;
 }

@@ -19,17 +19,17 @@ typedef void (*XmlStreamElementHandler) (void* user_data, pugi::xml_document& do
 class XmlStreamParser
 {
 public:
-    
+
     enum parse_result { kParseOk = 0, kParseStanzaLimitHit, kParseInvalidXml };
-    
+
     XmlStreamParser(bool skip_root, size_t max_stanza, XmlStreamElementHandler handler);
     ~XmlStreamParser();
-    
+
     parse_result FeedData(const uint8_t* data, size_t size, void* user_data);
     void Reset(bool skip_root);
-    
+
 private:
-    
+
     bool PushStanza(uint8_t* buffer, size_t length, void* user_data);
     size_t FindStanzaUpperLimit(const uint8_t* ptr, size_t size);
     void Cleanup();
