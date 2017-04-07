@@ -4,3 +4,4 @@
 /ebin/
 /erlxml_nif.xcodeproj/
 /priv/
+*.iml
