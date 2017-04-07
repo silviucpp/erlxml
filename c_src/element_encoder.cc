@@ -4,11 +4,11 @@
 #include "nif_utils.h"
 #include "erlxml_nif.h"
 
-//instead reversing the list in erlang we traverse the dom in reverse order
-#define REVERSE_ITERATION
-
 static const int kXmlelArity = 4;
 static const int kXmlcdataArity = 2;
+
+//will iterate over attributes and childrens in reverse order
+//to make sure we don't have to do lists:reverse in erlang
 
 void pugi2term(ErlNifEnv*env, const pugi::xml_node& node, ERL_NIF_TERM* list)
 {
@@ -20,7 +20,6 @@ void pugi2term(ErlNifEnv*env, const pugi::xml_node& node, ERL_NIF_TERM* list)
             ERL_NIF_TERM attrs = enif_make_list(env, 0);
             ERL_NIF_TERM childrens = enif_make_list(env, 0);
 
-#if defined(REVERSE_ITERATION)
             for (pugi::xml_attribute_iterator ait = node.attributes_end(); ait != node.attributes_begin();)
             {
                 --ait;
@@ -28,29 +27,12 @@ void pugi2term(ErlNifEnv*env, const pugi::xml_node& node, ERL_NIF_TERM* list)
                 ERL_NIF_TERM value = make_binary(env, ait->value(), strlen(ait->value()));
                 attrs = enif_make_list_cell(env, enif_make_tuple2(env, key, value), attrs);
             }
-#else
-            for (pugi::xml_attribute attr : node.attributes())
-            {
-                ERL_NIF_TERM key = make_binary(env, attr.name(), strlen(attr.name()));
-                ERL_NIF_TERM value = make_binary(env, attr.value(), strlen(attr.value()));
-                attrs = enif_make_list_cell(env, enif_make_tuple2(env, key, value), attrs);
-            }
 
-            enif_make_reverse_list(env, attrs, &attrs);
-#endif
-
-#if defined(REVERSE_ITERATION)
             for (pugi::xml_node_iterator nit = node.end(); nit != node.begin();)
             {
                 --nit;
                 pugi2term(env, *nit, &childrens);
             }
-#else
-            for (pugi::xml_node child: node.children())
-                pugi2term(env, child, &childrens);
-
-            enif_make_reverse_list(env, childrens, &childrens);
-#endif
 
             ERL_NIF_TERM xmlel = enif_make_tuple4(env, ATOMS.atomXmlel, name, attrs, childrens);
             *list = enif_make_list_cell(env, xmlel, *list);
@@ -63,7 +45,7 @@ void pugi2term(ErlNifEnv*env, const pugi::xml_node& node, ERL_NIF_TERM* list)
             *list = enif_make_list_cell(env, enif_make_tuple2(env, ATOMS.atomXmlcdata, value), *list);
             break;
         }
-            
+
         default:;
     }
 }
@@ -137,6 +119,6 @@ bool term2pugi(ErlNifEnv* env, ERL_NIF_TERM element, pugi::xml_node& node)
 
         node.append_child(pugi::node_pcdata).set_value(value.c_str());
     }
-    
+
     return true;
 }
