@@ -2,7 +2,7 @@
 
 *erlxml - Erlang XML parsing library based on pugixml* 
 
-# Implementation nodes
+# Implementation notes
 
 [pugixml][1] is the fastest dom parser available in c++ based on the benchmarks available [here][2]. The streaming parsing is implemented by 
 splitting the stream into independent stanzas which are parsed using pugixml. The algorithm for splitting is pretty fast but in order to keep it simple as possible 
