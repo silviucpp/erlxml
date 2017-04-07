@@ -1,2 +1,4 @@
 *.cc linguist-language=Erlang
-
+*.cpp linguist-language=Erlang
+*.hpp linguist-language=Erlang
+*.h linguist-language=Erlang
