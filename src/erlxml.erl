@@ -7,6 +7,7 @@
 
     %stream based parsing
 
+    new_stream/0,
     new_stream/1,
     parse_stream/2,
     parse_reset/2,
@@ -16,6 +17,9 @@
     parse/1,
     to_binary/1
 ]).
+
+new_stream() ->
+    new_stream([]).
 
 new_stream(Options) ->
     erlxml_nif:new_stream(Options).

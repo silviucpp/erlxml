@@ -64,7 +64,7 @@ ERL_NIF_TERM parse_stream_options(ErlNifEnv* env, ERL_NIF_TERM list, stream_opti
         ERL_NIF_TERM key = items[0];
         ERL_NIF_TERM value = items[1];
 
-        if(enif_is_identical(key, ATOMS.atomStanzaLimit))
+        if(enif_is_identical(key, ATOMS.atomSkipRootElement))
         {
             if(!get_boolean(value, &opts->skip_root))
                 return make_bad_options(env, head);
