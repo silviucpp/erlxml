@@ -94,7 +94,7 @@ print(Bytes, A, B) ->
     Milliseconds = Microsecs/1000,
     Secs = Milliseconds/1000,
     BytesPerSec = Bytes/Secs,
-    io:format("### ~p ms ~s bytes/sec total bytes processed: ~s ~n", [Milliseconds, format_size(BytesPerSec), format_size(Bytes)]).
+    io:format("### ~p ms ~s/sec total bytes processed: ~s ~n", [Milliseconds, format_size(BytesPerSec), format_size(Bytes)]).
 
 format_size(Size) ->
     format_size(Size, ["B","KB","MB","GB","TB","PB"]).

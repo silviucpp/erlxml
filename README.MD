@@ -113,19 +113,24 @@ my test is around 1.38 GB) :
 
 ```erlang
 benchmark_stream:bench(exml, "/Users/silviu/Desktop/example.txt", 30000, 1).
-### 44522.645 ms 31.73 MB bytes/sec total bytes processed: 1.38 GB 
+### 44522.645 ms 31.73 MB/sec total bytes processed: 1.38 GB 
 benchmark_stream:bench(exml, "/Users/silviu/Desktop/example.txt", 30000, 5).
-### 12297.572 ms 114.89 MB bytes/sec total bytes processed: 1.38 GB 
+### 12297.572 ms 114.89 MB/sec total bytes processed: 1.38 GB 
 benchmark_stream:bench(exml, "/Users/silviu/Desktop/example.txt", 30000, 10).
-### 12535.643 ms 112.71 MB bytes/sec total bytes processed: 1.38 GB 
+### 12535.643 ms 112.71 MB/sec total bytes processed: 1.38 GB 
 
 benchmark_stream:bench(erlxml, "/Users/silviu/Desktop/example.txt", 30000, 1). 
-### 9898.998 ms 142.73 MB bytes/sec total bytes processed: 1.38 GB 
+### 9898.998 ms 142.73 MB/sec total bytes processed: 1.38 GB 
 benchmark_stream:bench(erlxml, "/Users/silviu/Desktop/example.txt", 30000, 5).
-### 2620.594 ms 539.16 MB bytes/sec total bytes processed: 1.38 GB 
+### 2620.594 ms 539.16 MB/sec total bytes processed: 1.38 GB 
 benchmark_stream:bench(erlxml, "/Users/silviu/Desktop/example.txt", 30000, 10).
-### 2529.72 ms 558.53 MB bytes/sec total bytes processed: 1.38 GB 
+### 2529.72 ms 558.53 MB/sec total bytes processed: 1.38 GB 
 ```
+
+| Library    | C1 (MB/s)      |   C5 (MB/s) | C10 (MB/s)  |
+|:----------:|:--------------:|:-----------:|:-----------:|
+| erlxml     | 142.73         |  539.16     |  558.53     |
+| exml       | 31.73          |  114.89     | 112.71      |
 
 [1]:http://pugixml.org
 [2]:http://pugixml.org/benchmark.html
