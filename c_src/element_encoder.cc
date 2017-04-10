@@ -4,6 +4,8 @@
 #include "nif_utils.h"
 #include "erlxml_nif.h"
 
+#include <string.h>
+
 static const int kXmlelArity = 4;
 static const int kXmlcdataArity = 2;
 
