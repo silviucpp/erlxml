@@ -4,8 +4,6 @@
 #include "xmlstreamparser.h"
 #include "element_encoder.h"
 
-#include <sstream>
-
 const char kErrorFailedToAllocXmlStream[] = "failed to alloc stream object";
 const char kErrorBadOwner[] = "erlxml session was created on a different process";
 
@@ -29,6 +27,16 @@ struct parser_data
 
     ErlNifEnv* env;
     ERL_NIF_TERM term;
+};
+
+struct xml_string_writer: pugi::xml_writer
+{
+    std::string result;
+
+    void write(const void* data, size_t size)
+    {
+        result.append(static_cast<const char*>(data), size);
+    }
 };
 
 void enif_stream_parser_free(ErlNifEnv* env, void* obj)
@@ -212,9 +220,7 @@ ERL_NIF_TERM enif_dom_to_binary(ErlNifEnv* env, int argc, const ERL_NIF_TERM arg
     if(!term2pugi(env, argv[0], doc))
         return make_badarg(env);
 
-    std::ostringstream stream;
-    doc.document_element().print(stream, "\t", pugi::format_raw);
-    std::string content = stream.str();
-
-    return make_binary(env, content.c_str(), content.length());
+    xml_string_writer w;
+    doc.document_element().print(w, "\t", pugi::format_raw);
+    return make_binary(env, w.result.c_str(), w.result.length());
 }
