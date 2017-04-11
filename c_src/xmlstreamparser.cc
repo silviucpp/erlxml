@@ -78,6 +78,12 @@ XmlStreamParser::parse_result XmlStreamParser::FeedData(const uint8_t* data, siz
             return kParseStanzaLimitHit;
         }
 
+        if(nested_level_ < -1)
+        {
+            Cleanup();
+            return kParseInvalidXml;
+        }
+
         if(nested_level_ == -1 && process_root_ == false)
         {
             end_stream_handler_(user_data, root_name_);
