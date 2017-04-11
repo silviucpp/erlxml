@@ -6,3 +6,4 @@
 /priv/
 *.iml
 *.DS_Store
+/log/
