@@ -12,7 +12,6 @@ const char kAtomFalse[] = "false";
 const char kAtomBadArg[] = "badarg";
 const char kAtomOptions[] = "options";
 
-const char kAtomSkipRootElement[] = "skip_root";
 const char kAtomStanzaLimit[] = "stanza_limit";
 
 const char kAtomErrorInvalidStanza[] = "invalid_stanza";
@@ -20,6 +19,8 @@ const char kAtomErrorMaxStanzaLimitHit[] = "max_stanza_limit_hit";
 
 const char kAtomXmlel[] = "xmlel";
 const char kAtomXmlcdata[] = "xmlcdata";
+const char kAtomXmlStreamStart[] = "xmlstreamstart";
+const char kAtomXmlStreamEnd[] = "xmlstreamend";
 
 atoms ATOMS;
 
@@ -45,11 +46,12 @@ int on_nif_load(ErlNifEnv* env, void** priv_data, ERL_NIF_TERM load_info)
     ATOMS.atomErrorInvalidStanza = make_atom(env, kAtomErrorInvalidStanza);
     ATOMS.atomErrorMaxStanzaLimitHit = make_atom(env, kAtomErrorMaxStanzaLimitHit);
 
-    ATOMS.atomSkipRootElement = make_atom(env, kAtomSkipRootElement);
     ATOMS.atomStanzaLimit = make_atom(env, kAtomStanzaLimit);
 
     ATOMS.atomXmlel = make_atom(env, kAtomXmlel);
     ATOMS.atomXmlcdata = make_atom(env, kAtomXmlcdata);
+    ATOMS.atomXmlStreamStart = make_atom(env, kAtomXmlStreamStart);
+    ATOMS.atomXmlStreamEnd = make_atom(env, kAtomXmlStreamEnd);
 
     erlxml_data* data = static_cast<erlxml_data*>(enif_alloc(sizeof(erlxml_data)));
     open_resources(env, data);
@@ -82,7 +84,7 @@ static ErlNifFunc nif_funcs[] =
 {
     {"new_stream", 1, enif_stream_parser_new},
     {"feed_stream", 2, enif_stream_parser_feed},
-    {"reset_stream", 2, enif_stream_parser_reset},
+    {"reset_stream", 1, enif_stream_parser_reset},
     {"dom_parse", 1, enif_dom_parse},
     {"to_binary", 1, enif_dom_to_binary}
 };

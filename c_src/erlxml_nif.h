@@ -17,13 +17,14 @@ struct atoms
     ERL_NIF_TERM atomErrorMaxStanzaLimitHit;
 
     //options
-    ERL_NIF_TERM atomSkipRootElement;
     ERL_NIF_TERM atomStanzaLimit;
 
     //elements
 
     ERL_NIF_TERM atomXmlel;
     ERL_NIF_TERM atomXmlcdata;
+    ERL_NIF_TERM atomXmlStreamStart;
+    ERL_NIF_TERM atomXmlStreamEnd;
 
 };
 

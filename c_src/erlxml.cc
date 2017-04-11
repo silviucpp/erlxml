@@ -15,9 +15,8 @@ struct enif_erlxml_stream
 
 struct stream_options
 {
-    stream_options() : skip_root(true), stanza_limit(0) {}
+    stream_options() : stanza_limit(0) {}
 
-    bool skip_root;
     size_t stanza_limit;
 };
 
@@ -49,10 +48,24 @@ void enif_stream_parser_free(ErlNifEnv* env, void* obj)
         delete stream->parser;
 }
 
+bool handle_start_stream(void* user_data, pugi::xml_document& doc)
+{
+    parser_data* wp = reinterpret_cast<parser_data*>(user_data);
+    return pugi2stream_start(wp->env, doc.first_child(), &wp->term);
+}
+
 void handle_stanza(void* user_data, pugi::xml_document& doc)
 {
     parser_data* wp = reinterpret_cast<parser_data*>(user_data);
     pugi2term(wp->env, doc.first_child(), &wp->term);
+}
+
+void handle_end_stream(void* user_data, const std::string& rootname)
+{
+    parser_data* wp = reinterpret_cast<parser_data*>(user_data);
+    ERL_NIF_TERM name = make_binary(wp->env, rootname.c_str(), rootname.length());
+    ERL_NIF_TERM xmlstreamstart = enif_make_tuple2(wp->env, ATOMS.atomXmlStreamEnd, name);
+    wp->term = enif_make_list_cell(wp->env, xmlstreamstart, wp->term);
 }
 
 ERL_NIF_TERM parse_stream_options(ErlNifEnv* env, ERL_NIF_TERM list, stream_options* opts)
@@ -72,12 +85,7 @@ ERL_NIF_TERM parse_stream_options(ErlNifEnv* env, ERL_NIF_TERM list, stream_opti
         ERL_NIF_TERM key = items[0];
         ERL_NIF_TERM value = items[1];
 
-        if(enif_is_identical(key, ATOMS.atomSkipRootElement))
-        {
-            if(!get_boolean(value, &opts->skip_root))
-                return make_bad_options(env, head);
-        }
-        else if(enif_is_identical(key, ATOMS.atomStanzaLimit))
+        if(enif_is_identical(key, ATOMS.atomStanzaLimit))
         {
             if(!enif_get_uint64(env, value, &opts->stanza_limit))
                 return make_bad_options(env, head);
@@ -112,7 +120,7 @@ ERL_NIF_TERM enif_stream_parser_new(ErlNifEnv* env, int argc, const ERL_NIF_TERM
     ErlNifPid current_pid;
     enif_self(env, &current_pid);
 
-    nif_stream->parser = new XmlStreamParser(opts.skip_root, opts.stanza_limit, handle_stanza);
+    nif_stream->parser = new XmlStreamParser(opts.stanza_limit, handle_start_stream, handle_end_stream, handle_stanza);
     nif_stream->owner_pid = enif_make_pid(env, &current_pid);
 
     ERL_NIF_TERM term = enif_make_resource(env, nif_stream);
@@ -148,7 +156,10 @@ ERL_NIF_TERM enif_stream_parser_feed(ErlNifEnv* env, int argc, const ERL_NIF_TER
     switch (result)
     {
         case XmlStreamParser::kParseOk:
-                return make_ok_result(env, parser_data.term);
+            if(!enif_make_reverse_list(env, parser_data.term, &parser_data.term))
+                return make_error(env, "failed to reverse the element list");
+
+            return make_ok_result(env, parser_data.term);
 
         case XmlStreamParser::kParseInvalidXml:
             return make_error(env, ATOMS.atomErrorInvalidStanza);
@@ -176,12 +187,7 @@ ERL_NIF_TERM enif_stream_parser_reset(ErlNifEnv* env, int argc, const ERL_NIF_TE
     if(enif_self(env, &current_pid) && !enif_is_identical(stream->owner_pid, enif_make_pid(env, &current_pid)))
         return make_error(env, kErrorBadOwner);
 
-    bool skip_root;
-
-    if(!get_boolean(argv[1], &skip_root))
-        return make_badarg(env);
-
-    stream->parser->Reset(skip_root);
+    stream->parser->Reset();
     return ATOMS.atomOk;
 }
 

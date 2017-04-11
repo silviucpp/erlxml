@@ -7,7 +7,7 @@
     new_stream/0,
     new_stream/1,
     parse_stream/2,
-    reset_stream/2,
+    reset_stream/1,
     parse/1,
     to_binary/1
 ]).
@@ -25,16 +25,16 @@ new_stream(Options) ->
     erlxml_nif:new_stream(Options).
 
 -spec parse_stream(reference(), iolist() | binary()) ->
-    {ok, [#xmlel{}]} | {error, reason()}.
+    {ok, [#xmlstreamstart{} | #xmlel{} | #xmlstreamend{}]} | {error, reason()}.
 
 parse_stream(Parser, Data) ->
     erlxml_nif:chunk_feed_stream(Parser, Data).
 
--spec reset_stream(reference(), boolean()) ->
+-spec reset_stream(reference()) ->
     ok | {error, reason()}.
 
-reset_stream(Parser, SkipRoot) ->
-    erlxml_nif:reset_stream(Parser, SkipRoot).
+reset_stream(Parser) ->
+    erlxml_nif:reset_stream(Parser).
 
 -spec parse(iolist() | binary()) ->
     {ok, [#xmlel{}]} | {error, reason()}.

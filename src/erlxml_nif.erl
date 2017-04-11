@@ -10,7 +10,7 @@
 -export([
     new_stream/1,
     chunk_feed_stream/2,
-    reset_stream/2,
+    reset_stream/1,
     dom_parse/1,
     to_binary/1
 ]).
@@ -44,7 +44,7 @@ new_stream(_Opts) ->
 feed_stream(_Parser, _Data) ->
     ?NOT_LOADED.
 
-reset_stream(_Parser, _SkipRoot) ->
+reset_stream(_Parser) ->
     ?NOT_LOADED.
 
 dom_parse(_Data) ->

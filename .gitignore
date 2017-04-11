@@ -5,3 +5,4 @@
 /erlxml_nif.xcodeproj/
 /priv/
 *.iml
+*.DS_Store

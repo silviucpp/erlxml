@@ -53,16 +53,17 @@ const uint8_t kLookupSkipTag[256] = {
     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  //F
 };
 
-XmlStreamParser::XmlStreamParser(bool skip_root, size_t max_stanza, XmlStreamElementHandler handler) :
-    skip_root_(skip_root),
+XmlStreamParser::XmlStreamParser(size_t max_stanza, XmlStartStreamHandler start_h, XmlEndStreamHandler end_h, XmlStreamElementHandler el_h) :
+    process_root_(true),
     max_stanza_bytes_(max_stanza),
-    handler_(handler),
-    nested_level_(0),
+    start_stream_handler_(start_h),
+    end_stream_handler_(end_h),
+    element_handler_(el_h),
+    nested_level_(-1),
     last_char_(0),
     end_begin_detected_(false)
 {
-    if(skip_root_)
-        nested_level_ = -1;
+
 }
 
 XmlStreamParser::~XmlStreamParser()
@@ -74,7 +75,8 @@ void XmlStreamParser::Cleanup()
 {
     buffer_.Clear();
     buffer_.Resize(kDefaultBufferSize);
-    nested_level_ = 0;
+    nested_level_ = -1;
+    process_root_ = true;
     last_char_ = 0;
     end_begin_detected_ = false;
 }
@@ -97,8 +99,9 @@ XmlStreamParser::parse_result XmlStreamParser::FeedData(const uint8_t* data, siz
             return kParseStanzaLimitHit;
         }
 
-        if(nested_level_ == -1 && skip_root_ == false)
+        if(nested_level_ == -1 && process_root_ == false)
         {
+            end_stream_handler_(user_data, root_name_);
             //finished the stream
             Cleanup();
             return kParseOk;
@@ -192,18 +195,12 @@ size_t XmlStreamParser::FindStanzaUpperLimit(const uint8_t* ptr, size_t size)
 
 bool XmlStreamParser::PushStanza(uint8_t* buffer, size_t length, void* user_data, bool copy)
 {
-    if(skip_root_)
-    {
-        //drop all bytes so far
-        skip_root_ = false;
-        end_begin_detected_ = false;
-        last_char_ = 0;
-        return true;
-    }
+    if(process_root_)
+        return ProcessRootElement(buffer, length, user_data);
 
     size_t skip_bytes = 0;
 
-    while (kLookupWhitespace[static_cast<unsigned char>(buffer[skip_bytes])])
+    while (skip_bytes < length && kLookupWhitespace[static_cast<unsigned char>(buffer[skip_bytes])])
         skip_bytes++;
 
     length -= skip_bytes;
@@ -225,7 +222,7 @@ bool XmlStreamParser::PushStanza(uint8_t* buffer, size_t length, void* user_data
         if(result != pugi::status_ok)
             return false;
 
-        handler_(user_data, pugi_doc_);
+        element_handler_(user_data, pugi_doc_);
     }
 
     end_begin_detected_ = false;
@@ -234,11 +231,40 @@ bool XmlStreamParser::PushStanza(uint8_t* buffer, size_t length, void* user_data
     return true;
 }
 
-void XmlStreamParser::Reset(bool skip_root)
+bool XmlStreamParser::ProcessRootElement(uint8_t* buffer, size_t length, void* user_data)
 {
-    skip_root_ = skip_root;
-    Cleanup();
+    size_t skip_bytes = 0;
 
-    if(skip_root_)
-        nested_level_ = -1;
+    while (skip_bytes < length && kLookupWhitespace[static_cast<unsigned char>(buffer[skip_bytes])])
+        skip_bytes++;
+
+    length -= skip_bytes;
+
+    if(!length)
+        return false;
+
+    ByteBuffer rootbuff;
+    rootbuff.WriteBytes(buffer+skip_bytes, length-1);
+    rootbuff.WriteBytes(reinterpret_cast<const uint8_t*>("/>"), 2);
+
+    pugi::xml_parse_status result = pugi_doc_.load_buffer_inplace(const_cast<uint8_t*>(rootbuff.Data()), rootbuff.Length()).status;
+
+    if(result != pugi::status_ok)
+        return false;
+
+    if(!start_stream_handler_(user_data, pugi_doc_))
+        return false;
+
+    //drop all bytes so far
+    root_name_ = pugi_doc_.document_element().name();
+    process_root_ = false;
+    end_begin_detected_ = false;
+    last_char_ = 0;
+
+    return true;
+}
+
+void XmlStreamParser::Reset()
+{
+    Cleanup();
 }

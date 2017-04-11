@@ -64,10 +64,6 @@ When you create a stream using `new_stream/1` you can specify the following opti
 - `stanza_limit` - Specify the maximum size a stanza can have. In case the library parses more than this amount of bytes 
 without finding a stanza will return and error `{error, max_stanza_limit_hit}`. Example: `{stanza_limit, 65000}`. By default is 0 which means unlimited.
 
-- `skip_root` - Specify if the stream has a root element or not. In case has one this flag should be true to skip the 
-root element. Example: `{skip_root, true}` . Default is true 
-
-
 ### Benchmarks
 
 The benchmark code is inside the benchmark folder. You need to get `exml` from Erlang Solutions as dependencies 

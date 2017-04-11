@@ -9,8 +9,30 @@
 static const int kXmlelArity = 4;
 static const int kXmlcdataArity = 2;
 
-//will iterate over attributes and childrens in reverse order
-//to make sure we don't have to do lists:reverse in erlang
+// all the time we iterate over attributes and childrens in reverse order
+// to make sure we don't have to do lists:reverse in erlang
+
+bool pugi2stream_start(ErlNifEnv*env, const pugi::xml_node& node, ERL_NIF_TERM* list)
+{
+    if(node.type() != pugi::node_element)
+        return false;
+
+    ERL_NIF_TERM name = make_binary(env, node.name(), strlen(node.name()));
+    ERL_NIF_TERM attrs = enif_make_list(env, 0);
+
+    for (pugi::xml_attribute_iterator ait = node.attributes_end(); ait != node.attributes_begin();)
+    {
+        --ait;
+        ERL_NIF_TERM key = make_binary(env, ait->name(), strlen(ait->name()));
+        ERL_NIF_TERM value = make_binary(env, ait->value(), strlen(ait->value()));
+        attrs = enif_make_list_cell(env, enif_make_tuple2(env, key, value), attrs);
+    }
+
+    ERL_NIF_TERM xmlstreamstart = enif_make_tuple3(env, ATOMS.atomXmlStreamStart, name, attrs);
+    *list = enif_make_list_cell(env, xmlstreamstart, *list);
+
+    return true;
+}
 
 void pugi2term(ErlNifEnv*env, const pugi::xml_node& node, ERL_NIF_TERM* list)
 {
