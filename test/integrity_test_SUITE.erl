@@ -12,7 +12,8 @@ all() -> [
 groups() -> [
     {erlxml_group, [sequence], [
         test_bad_options,
-        test_to_binary,
+        test_to_binary_ok,
+        test_to_binary_error,
         test_dom_parsing_ok,
         test_dom_parsing_error,
         test_max_stanza_limit_hit,
@@ -32,9 +33,14 @@ test_bad_options(_Config) ->
     {error,{options,{unavailable_option,1}}} = erlxml:new_stream([{unavailable_option, 1}]),
     true.
 
-test_to_binary(_Config) ->
+test_to_binary_ok(_Config) ->
     Xml = {xmlel,<<"foo">>, [{<<"attr1">>,<<"bar">>}], [{xmlcdata,<<"Some Value">>}]},
     <<"<foo attr1=\"bar\">Some Value</foo>">> = erlxml:to_binary(Xml),
+    true.
+
+test_to_binary_error(_Config) ->
+    Xml = {axmlel,<<"foo">>, [{<<"attr1">>,<<"bar">>}], [{xmlcdata,<<"Some Value">>}]},
+    {error, badarg} = erlxml:to_binary(Xml),
     true.
 
 test_dom_parsing_ok(_Config) ->

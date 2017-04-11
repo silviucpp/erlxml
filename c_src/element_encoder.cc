@@ -143,6 +143,10 @@ bool term2pugi(ErlNifEnv* env, ERL_NIF_TERM element, pugi::xml_node& node)
 
         node.append_child(pugi::node_pcdata).set_value(value.c_str());
     }
+    else
+    {
+        return false;
+    }
 
     return true;
 }
