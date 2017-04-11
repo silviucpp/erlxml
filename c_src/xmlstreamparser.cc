@@ -10,6 +10,27 @@
 
 const int kDefaultBufferSize = 1024;
 
+// whitespace (space \n \r \t) lookup table
+
+const uint8_t kLookupWhitespace[256] = {
+    0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  1,  0,  0,  1,  0,  0,  // 0
+    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  // 1
+    1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  // 2
+    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  // 3
+    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  // 4
+    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  // 5
+    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  // 6
+    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  // 7
+    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  // 8
+    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  // 9
+    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  // A
+    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  // B
+    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  // C
+    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  // D
+    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  // E
+    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0   // F
+};
+
 // match - ! ? and / . we don't increase the nested level for those in case are before >
 // and also we ignore the stanza's that has only one element of this type (header or comment)
 
@@ -183,19 +204,27 @@ bool XmlStreamParser::PushStanza(uint8_t* buffer, size_t length, void* user_data
     if(process_root_)
         return ProcessRootElement(buffer, length, user_data);
 
+    size_t skip_bytes = 0;
+
+    while (skip_bytes < length && kLookupWhitespace[static_cast<unsigned char>(buffer[skip_bytes])])
+        skip_bytes++;
+
+    length -= skip_bytes;
+
     if(length < 4)
         return false;
 
     // don't parse anything in case we have a header or comment as first element
+    // for this reason we need to skip all spaces
 
-    if(!kLookupSkipTag[buffer[1]])
+    if(!kLookupSkipTag[buffer[skip_bytes+1]])
     {
         pugi::xml_parse_status result;
 
         if(copy)
-            result = pugi_doc_.load_buffer(buffer, length).status;
+            result = pugi_doc_.load_buffer(buffer+skip_bytes, length).status;
         else
-            result = pugi_doc_.load_buffer_inplace(buffer, length).status;
+            result = pugi_doc_.load_buffer_inplace(buffer+skip_bytes, length).status;
 
         if(result != pugi::status_ok)
             return false;
