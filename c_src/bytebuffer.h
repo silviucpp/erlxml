@@ -32,6 +32,7 @@ public:
 private:
 
     void Construct(const uint8_t* bytes, size_t size);
+    bool LeftShift();
 
     uint8_t* bytes_;
     size_t size_;
