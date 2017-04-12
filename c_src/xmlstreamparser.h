@@ -25,11 +25,10 @@ public:
 
 private:
 
-    bool PushStanza(uint8_t* buffer, size_t length, void* user_data, bool copy);
-    size_t FindStanzaUpperLimit(const uint8_t* ptr, size_t size);
+    parse_result DoProcess(size_t start, size_t size, void* user_data);
+    bool PushStanza(uint8_t* buffer, size_t length, void* user_data);
+    int64_t FindStanzaUpperLimit(const uint8_t* ptr, size_t start, size_t size);
     bool ProcessRootElement(uint8_t* buffer, size_t length, void* user_data);
-
-    void Cleanup();
 
     bool process_root_;
     size_t max_stanza_bytes_;
@@ -38,8 +37,8 @@ private:
     XmlEndStreamHandler end_stream_handler_;
     XmlStreamElementHandler element_handler_;
     int32_t nested_level_;
-    uint8_t last_char_;
-    bool end_begin_detected_;
+    int64_t last_start_tag_index_;
+    int64_t first_start_tag_index_;
     pugi::xml_document pugi_doc_;
     std::string root_name_;
 };
