@@ -52,9 +52,12 @@ Which results in
 Chunk1 = <<"<stream><foo attr1=\"bar">>,
 Chunk2 = <<"\">Some Value</foo></stream>">>,
 {ok, Parser} = erlxml:new_stream(),
-{ok, []} = erlxml:parse_stream(Parser, Chunk1),
-Rs = erlxml:parse_stream(Parser, Chunk2).
-{ok, [{xmlel,<<"foo">>, [{<<"attr1">>,<<"bar">>}], [{xmlcdata,<<"Some Value">>}]}]} = Rs.
+{ok,[{xmlstreamstart,<<"stream">>,[]}]} = erlxml:parse_stream(Parser, Chunk1),
+Rs = erlxml:parse_stream(Parser, Chunk2),
+{ok,[{xmlel,<<"foo">>,
+        [{<<"attr1">>,<<"bar">>}],
+        [{xmlcdata,<<"Some Value">>}]},
+     {xmlstreamend,<<"stream">>}]} = Rs.
 ```
 
 ### Options 
