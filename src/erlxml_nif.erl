@@ -56,7 +56,7 @@ to_binary(_Data) ->
 chunk_feed_stream(Parser, Data) when is_binary(Data) ->
     chunk_feed_stream(Parser, Data, byte_size(Data), null);
 chunk_feed_stream(Parser, Data) ->
-    chunk_feed_stream(Parser, list_to_binary(Data)).
+    chunk_feed_stream(Parser, iolist_to_binary(Data)).
 
 chunk_feed_stream(Parser, Data, Size, Acc) ->
     case Size > ?MAX_BYTES_TO_NIF of
