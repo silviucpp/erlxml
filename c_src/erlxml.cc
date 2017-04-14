@@ -30,11 +30,11 @@ struct parser_data
 
 struct xml_string_writer: pugi::xml_writer
 {
-    std::string result;
+    ByteBuffer buffer;
 
     void write(const void* data, size_t size)
     {
-        result.append(static_cast<const char*>(data), size);
+        buffer.WriteBytes(reinterpret_cast<const uint8_t*>(data), size);
     }
 };
 
@@ -228,5 +228,5 @@ ERL_NIF_TERM enif_dom_to_binary(ErlNifEnv* env, int argc, const ERL_NIF_TERM arg
 
     xml_string_writer w;
     doc.document_element().print(w, "\t", pugi::format_raw);
-    return make_binary(env, w.result.c_str(), w.result.length());
+    return make_binary(env, reinterpret_cast<const char*>(w.buffer.Data()), w.buffer.Length());
 }
