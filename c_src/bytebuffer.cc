@@ -103,9 +103,11 @@ bool ByteBuffer::LeftShift()
     if(start_ == 0)
         return false;
 
-    memmove(bytes_, bytes_ + start_, end_);
-    end_ -= start_;
+    size_t length = end_ - start_;
+
+    memmove(bytes_, bytes_ + start_, length);
     start_ = 0;
+    end_ = length;
     return true;
 }
 
