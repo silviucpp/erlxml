@@ -32,9 +32,10 @@ const uint8_t kLookupSkipTag[256] = {
     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  //F
 };
 
-XmlStreamParser::XmlStreamParser(size_t max_stanza, XmlStartStreamHandler start_h, XmlEndStreamHandler end_h, XmlStreamElementHandler el_h) :
+XmlStreamParser::XmlStreamParser(size_t max_stanza, bool strip_invalid_utf8, XmlStartStreamHandler start_h, XmlEndStreamHandler end_h, XmlStreamElementHandler el_h) :
     process_root_(true),
     max_stanza_bytes_(max_stanza),
+    strip_invalid_utf8_(strip_invalid_utf8),
     start_stream_handler_(start_h),
     end_stream_handler_(end_h),
     element_handler_(el_h),
@@ -170,7 +171,7 @@ bool XmlStreamParser::PushStanza(uint8_t* buffer, size_t length, void* user_data
         if(result != pugi::status_ok)
             return false;
 
-        element_handler_(user_data, pugi_doc_);
+        element_handler_(user_data, pugi_doc_, strip_invalid_utf8_);
     }
 
     last_start_tag_index_ = -1;
@@ -188,12 +189,12 @@ bool XmlStreamParser::ProcessRootElement(uint8_t* buffer, size_t length, void* u
     rootbuff.WriteBytes(buffer, length-1);
     rootbuff.WriteBytes(reinterpret_cast<const uint8_t*>("/>"), 2);
 
-    pugi::xml_parse_status result = pugi_doc_.load_buffer_inplace(const_cast<uint8_t*>(rootbuff.Data()), rootbuff.Length()).status;
+    pugi::xml_parse_status result = pugi_doc_.load_buffer_inplace(const_cast<uint8_t*>(rootbuff.Data()), rootbuff.Length(), pugi::parse_default, pugi::encoding_utf8).status;
 
     if(result != pugi::status_ok)
         return false;
 
-    if(!start_stream_handler_(user_data, pugi_doc_))
+    if(!start_stream_handler_(user_data, pugi_doc_, strip_invalid_utf8_))
         return false;
 
     //drop all bytes so far

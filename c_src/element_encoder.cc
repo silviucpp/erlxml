@@ -3,16 +3,28 @@
 
 #include "nif_utils.h"
 #include "erlxml_nif.h"
+#include "utf8_cleanup.h"
 
 #include <string.h>
 
 static const int kXmlelArity = 4;
 static const int kXmlcdataArity = 2;
 
+ERL_NIF_TERM from_binary(ErlNifEnv* env, const char* data, size_t length, bool strip_non_utf8)
+{
+    if(strip_non_utf8)
+    {
+        size_t new_size = utf8_cleanup(const_cast<char*>(data), length);
+        return make_binary(env, data, new_size);
+    }
+
+    return make_binary(env, data, length);
+}
+
 // all the time we iterate over attributes and childrens in reverse order
 // to make sure we don't have to do lists:reverse in erlang
 
-bool pugi2stream_start(ErlNifEnv*env, const pugi::xml_node& node, ERL_NIF_TERM* list)
+bool pugi2stream_start(ErlNifEnv*env, const pugi::xml_node& node, bool strip_non_utf8, ERL_NIF_TERM* list)
 {
     if(node.type() != pugi::node_element)
         return false;
@@ -24,7 +36,7 @@ bool pugi2stream_start(ErlNifEnv*env, const pugi::xml_node& node, ERL_NIF_TERM* 
     {
         --ait;
         ERL_NIF_TERM key = make_binary(env, ait->name(), strlen(ait->name()));
-        ERL_NIF_TERM value = make_binary(env, ait->value(), strlen(ait->value()));
+        ERL_NIF_TERM value = from_binary(env, ait->value(), strlen(ait->value()), strip_non_utf8);
         attrs = enif_make_list_cell(env, enif_make_tuple2(env, key, value), attrs);
     }
 
@@ -34,7 +46,7 @@ bool pugi2stream_start(ErlNifEnv*env, const pugi::xml_node& node, ERL_NIF_TERM* 
     return true;
 }
 
-void pugi2term(ErlNifEnv*env, const pugi::xml_node& node, ERL_NIF_TERM* list)
+void pugi2term(ErlNifEnv*env, const pugi::xml_node& node, bool strip_non_utf8, ERL_NIF_TERM* list)
 {
     switch(node.type())
     {
@@ -48,14 +60,14 @@ void pugi2term(ErlNifEnv*env, const pugi::xml_node& node, ERL_NIF_TERM* list)
             {
                 --ait;
                 ERL_NIF_TERM key = make_binary(env, ait->name(), strlen(ait->name()));
-                ERL_NIF_TERM value = make_binary(env, ait->value(), strlen(ait->value()));
+                ERL_NIF_TERM value = from_binary(env, ait->value(), strlen(ait->value()), strip_non_utf8);
                 attrs = enif_make_list_cell(env, enif_make_tuple2(env, key, value), attrs);
             }
 
             for (pugi::xml_node_iterator nit = node.end(); nit != node.begin();)
             {
                 --nit;
-                pugi2term(env, *nit, &childrens);
+                pugi2term(env, *nit, strip_non_utf8, &childrens);
             }
 
             ERL_NIF_TERM xmlel = enif_make_tuple4(env, ATOMS.atomXmlel, name, attrs, childrens);
@@ -65,7 +77,7 @@ void pugi2term(ErlNifEnv*env, const pugi::xml_node& node, ERL_NIF_TERM* list)
 
         case pugi::node_pcdata:
         {
-            ERL_NIF_TERM value = make_binary(env, node.value(), strlen(node.value()));
+            ERL_NIF_TERM value = from_binary(env, node.value(), strlen(node.value()), strip_non_utf8);
             *list = enif_make_list_cell(env, enif_make_tuple2(env, ATOMS.atomXmlcdata, value), *list);
             break;
         }

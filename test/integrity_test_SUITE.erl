@@ -19,7 +19,8 @@ groups() -> [
         test_max_stanza_limit_hit,
         test_chunks,
         test_skip_header_and_comments,
-        test_one_by_one_char
+        test_one_by_one_char,
+        test_strip_invalid_utf8
     ]}
 ].
 
@@ -111,4 +112,17 @@ test_one_by_one_char(_Config) ->
 
     {ok, Parser} = erlxml:new_stream(),
     [{ok, _} = erlxml:parse_stream(Parser, [X]) || <<X:1/binary>> <= Data],
+    true.
+
+test_strip_invalid_utf8(_Config) ->
+    Data0 = <<"123🏇4567">>,
+    Length = byte_size(Data0) -1,
+    <<Data:Length/binary, _/binary>> = Data0,
+    Msg= <<"<stream><node a='", Data/binary, "'>", Data/binary, "</node></stream>">>,
+    {ok, Parser} = erlxml:new_stream([{strip_non_utf8, true}]),
+    {ok,[{xmlstreamstart,<<"stream">>,[]},
+        {xmlel,<<"node">>,
+            [{<<"a">>,<<"123456">>}],
+            [{xmlcdata,<<"123456">>}]},
+        {xmlstreamend,<<"stream">>}]} = erlxml:parse_stream(Parser, Msg),
     true.

@@ -7,9 +7,9 @@
 #include "bytebuffer.h"
 #include "macros.h"
 
-typedef bool (*XmlStartStreamHandler) (void* user_data, pugi::xml_document& doc);
+typedef bool (*XmlStartStreamHandler) (void* user_data, pugi::xml_document& doc, bool strip_non_utf8);
 typedef void (*XmlEndStreamHandler) (void* user_data, const std::string& name);
-typedef void (*XmlStreamElementHandler) (void* user_data, pugi::xml_document& doc);
+typedef void (*XmlStreamElementHandler) (void* user_data, pugi::xml_document& doc, bool strip_non_utf8);
 
 class XmlStreamParser
 {
@@ -17,7 +17,7 @@ public:
 
     enum parse_result { kParseOk = 0, kParseStanzaLimitHit, kParseInvalidXml };
 
-    XmlStreamParser(size_t max_stanza, XmlStartStreamHandler start_h, XmlEndStreamHandler end_h, XmlStreamElementHandler el_h);
+    XmlStreamParser(size_t max_stanza, bool strip_invalid_utf8, XmlStartStreamHandler start_h, XmlEndStreamHandler end_h, XmlStreamElementHandler el_h);
     ~XmlStreamParser();
 
     parse_result FeedData(const uint8_t* data, size_t size, void* user_data);
@@ -32,6 +32,8 @@ private:
 
     bool process_root_;
     size_t max_stanza_bytes_;
+    bool strip_invalid_utf8_;
+
     ByteBuffer buffer_;
     XmlStartStreamHandler start_stream_handler_;
     XmlEndStreamHandler end_stream_handler_;

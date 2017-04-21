@@ -13,6 +13,7 @@ const char kAtomBadArg[] = "badarg";
 const char kAtomOptions[] = "options";
 
 const char kAtomStanzaLimit[] = "stanza_limit";
+const char kAtomStripInvalidUtf8[] = "strip_non_utf8";
 
 const char kAtomErrorInvalidStanza[] = "invalid_stanza";
 const char kAtomErrorMaxStanzaLimitHit[] = "max_stanza_limit_hit";
@@ -47,6 +48,7 @@ int on_nif_load(ErlNifEnv* env, void** priv_data, ERL_NIF_TERM load_info)
     ATOMS.atomErrorMaxStanzaLimitHit = make_atom(env, kAtomErrorMaxStanzaLimitHit);
 
     ATOMS.atomStanzaLimit = make_atom(env, kAtomStanzaLimit);
+    ATOMS.atomStripInvalidUtf8 = make_atom(env, kAtomStripInvalidUtf8);
 
     ATOMS.atomXmlel = make_atom(env, kAtomXmlel);
     ATOMS.atomXmlcdata = make_atom(env, kAtomXmlcdata);

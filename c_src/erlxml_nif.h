@@ -18,6 +18,7 @@ struct atoms
 
     //options
     ERL_NIF_TERM atomStanzaLimit;
+    ERL_NIF_TERM atomStripInvalidUtf8;
 
     //elements
 

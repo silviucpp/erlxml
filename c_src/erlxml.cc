@@ -15,9 +15,10 @@ struct enif_erlxml_stream
 
 struct stream_options
 {
-    stream_options() : stanza_limit(0) {}
+    stream_options() : stanza_limit(0), strip_invalid_utf8(false) {}
 
     size_t stanza_limit;
+    bool strip_invalid_utf8;
 };
 
 struct parser_data
@@ -48,16 +49,16 @@ void enif_stream_parser_free(ErlNifEnv* env, void* obj)
         delete stream->parser;
 }
 
-bool handle_start_stream(void* user_data, pugi::xml_document& doc)
+bool handle_start_stream(void* user_data, pugi::xml_document& doc, bool strip_non_utf8)
 {
     parser_data* wp = reinterpret_cast<parser_data*>(user_data);
-    return pugi2stream_start(wp->env, doc.first_child(), &wp->term);
+    return pugi2stream_start(wp->env, doc.first_child(), strip_non_utf8, &wp->term);
 }
 
-void handle_stanza(void* user_data, pugi::xml_document& doc)
+void handle_stanza(void* user_data, pugi::xml_document& doc, bool strip_non_utf8)
 {
     parser_data* wp = reinterpret_cast<parser_data*>(user_data);
-    pugi2term(wp->env, doc.first_child(), &wp->term);
+    pugi2term(wp->env, doc.first_child(), strip_non_utf8, &wp->term);
 }
 
 void handle_end_stream(void* user_data, const std::string& rootname)
@@ -90,6 +91,11 @@ ERL_NIF_TERM parse_stream_options(ErlNifEnv* env, ERL_NIF_TERM list, stream_opti
             if(!enif_get_uint64(env, value, &opts->stanza_limit))
                 return make_bad_options(env, head);
         }
+        else if(enif_is_identical(key, ATOMS.atomStripInvalidUtf8))
+        {
+            if(!get_boolean(value, &opts->strip_invalid_utf8))
+                return make_bad_options(env, head);
+        }
         else
         {
             return make_bad_options(env, head);
@@ -120,7 +126,7 @@ ERL_NIF_TERM enif_stream_parser_new(ErlNifEnv* env, int argc, const ERL_NIF_TERM
     ErlNifPid current_pid;
     enif_self(env, &current_pid);
 
-    nif_stream->parser = new XmlStreamParser(opts.stanza_limit, handle_start_stream, handle_end_stream, handle_stanza);
+    nif_stream->parser = new XmlStreamParser(opts.stanza_limit, opts.strip_invalid_utf8, handle_start_stream, handle_end_stream, handle_stanza);
     nif_stream->owner_pid = enif_make_pid(env, &current_pid);
 
     ERL_NIF_TERM term = enif_make_resource(env, nif_stream);
@@ -206,7 +212,7 @@ ERL_NIF_TERM enif_dom_parse(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
         return make_error(env, ATOMS.atomErrorInvalidStanza);
 
     ERL_NIF_TERM list = enif_make_list(env, 0);
-    pugi2term(env, pugi_doc.first_child(), &list);
+    pugi2term(env, pugi_doc.first_child(), false, &list);
 
     ERL_NIF_TERM head;
     ERL_NIF_TERM tail;
