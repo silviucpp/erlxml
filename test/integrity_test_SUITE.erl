@@ -17,6 +17,7 @@ groups() -> [
         test_dom_parsing_ok,
         test_dom_parsing_error,
         test_max_stanza_limit_hit,
+        test_max_stanza_limit_hit_cdata,
         test_chunks,
         test_skip_header_and_comments,
         test_one_by_one_char,
@@ -59,6 +60,18 @@ test_max_stanza_limit_hit(_Config) ->
     {ok, Parser2} = erlxml:new_stream([{stanza_limit, 12}]),
     {error, max_stanza_limit_hit} = erlxml:parse_stream(Parser, Data),
     {ok, _} = erlxml:parse_stream(Parser2, Data),
+    true.
+
+test_max_stanza_limit_hit_cdata(_Config) ->
+    MaxLimit = 65536,
+    Overflow = 1,
+
+    Head = <<"<message type='chat' to='user_1@tsung.wxxw.com' id='c3d6824652fdacdafcc56b9d8fccb550' timestamp='1492994733441777'><body>">>,
+    Tail = <<"</body></message>">>,
+    Body = binary:copy(<<"1">>, (MaxLimit - (byte_size(Head) + byte_size(Tail)))+Overflow),
+    Stanza = <<"<stream>", Head/binary, Body/binary, Tail/binary, "</stream>">>,
+    {ok, Parser} = erlxml:new_stream([{stanza_limit, MaxLimit}]),
+    {error, max_stanza_limit_hit} = erlxml:parse_stream(Parser, Stanza),
     true.
 
 test_chunks(_Config) ->

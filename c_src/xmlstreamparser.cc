@@ -63,12 +63,12 @@ XmlStreamParser::parse_result XmlStreamParser::FeedData(const uint8_t* data, siz
     return result;
 }
 
-XmlStreamParser::parse_result XmlStreamParser::DoProcess(size_t start, size_t size, void* user_data)
+XmlStreamParser::parse_result XmlStreamParser::DoProcess(size_t start, size_t end, void* user_data)
 {
     uint8_t* ptr = const_cast<uint8_t*>(buffer_.Data());
-    size_t remaining_stanza_bytes = max_stanza_bytes_ > 0 ? std::min(max_stanza_bytes_ - start, size) : size;
+    size_t max_end_position = max_stanza_bytes_ > 0 ? std::min(max_stanza_bytes_, end) : end;
 
-    int64_t end_stanza_index = FindStanzaUpperLimit(ptr, start, remaining_stanza_bytes);
+    int64_t end_stanza_index = FindStanzaUpperLimit(ptr, start, max_end_position);
 
     if(end_stanza_index == -1)
     {
@@ -78,9 +78,9 @@ XmlStreamParser::parse_result XmlStreamParser::DoProcess(size_t start, size_t si
 
     size_t end_stanza_pos = static_cast<size_t>(end_stanza_index);
 
-    if(end_stanza_pos == remaining_stanza_bytes)
+    if(end_stanza_pos == max_end_position)
     {
-        if(remaining_stanza_bytes != size)
+        if(max_stanza_bytes_ && max_end_position == max_stanza_bytes_)
         {
             Reset();
             return kParseStanzaLimitHit;
@@ -115,11 +115,11 @@ XmlStreamParser::parse_result XmlStreamParser::DoProcess(size_t start, size_t si
     return DoProcess(0, remaining, user_data);
 }
 
-int64_t XmlStreamParser::FindStanzaUpperLimit(const uint8_t* ptr, size_t start, size_t size)
+int64_t XmlStreamParser::FindStanzaUpperLimit(const uint8_t* ptr, size_t start, size_t end)
 {
     size_t index = start;
 
-    for(; index < size; index++)
+    for(; index < end; index++)
     {
         switch (ptr[index])
         {
