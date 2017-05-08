@@ -72,8 +72,8 @@ user input and might have malformed chars. Default is `false`.
 
 ### Benchmarks
 
-The benchmark code is inside the benchmark folder. You need to get `exml` from Erlang Solutions as dependencies 
-because all measurements are against this library. 
+The benchmark code is inside the benchmark folder. You need to get [exml][3] from Erlang Solutions and [fast_xml][4] from ProcessOne as dependencies 
+because all measurements are against this libraries. 
 
 All tests are run with 3 concurrency levels (how many erlang processes are spawn)
 
@@ -93,6 +93,7 @@ benchmark:bench_parsing(erlxml|exml, 600000, 1|5|10).
 |:----------:|:------------:|:---------:|:---------:|
 | erlxml     |  2082.619    |  552.734  |  593.192  |
 | exml       | 26704.861    | 7094.698  | 6805.855  |
+| fast_xml   | 18706.898    | 4635.46   | 4934.661  |
 
 ##### Generate an XML document from Erlang terms
 
@@ -106,7 +107,7 @@ benchmark:bench_encoding(erlxml|exml, 600000, 1|5|10).
 |:----------:|:------------:|:---------:|:---------:|
 | erlxml     | 2471.132     |  662.597  |  711.514  |
 | exml       | 6687.634     | 1853.416  | 1765.119  |
-
+| fast_xml   | 2112.349     |  483.353  |  446.801  |
 
 ##### Streaming parsing
 
@@ -137,3 +138,4 @@ benchmark_stream:bench(erlxml, "/Users/silviu/Desktop/example.txt", 30000, 10).
 [1]:http://pugixml.org
 [2]:http://pugixml.org/benchmark.html
 [3]:https://github.com/esl/exml
+[4]:https://github.com/processone/fast_xml

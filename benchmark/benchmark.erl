@@ -62,10 +62,12 @@
  </iq>">>).
 
 bench_encoding(Engine, Number, Concurrency) ->
+    init(Engine),
     Fun = fun() -> to_binary(Engine) end,
     bench(Fun, Number, Concurrency).
 
 bench_parsing(Engine, Number, Concurrency) ->
+    init(Engine),
     Fun = fun() -> parse(Engine, ?STANZA) end,
     bench(Fun, Number, Concurrency).
 
@@ -94,12 +96,21 @@ loop(Nr, Fun) ->
     Fun(),
     loop(Nr-1, Fun).
 
+init(fast_xml) ->
+    application:ensure_all_started(fast_xml);
+init(_) ->
+    ok.
+
 to_binary(erlxml) ->
     erlxml:to_binary(?ELEMENT);
 to_binary(exml) ->
-    exml:to_binary(?ELEMENT).
+    exml:to_binary(?ELEMENT);
+to_binary(fast_xml) ->
+    fxml:element_to_binary(?ELEMENT).
 
 parse(erlxml, Data) ->
-    {ok, _} = erlxml:parse(Data);
+    erlxml:parse(Data);
 parse(exml, Data) ->
-    {ok, _} = exml:parse(Data).
+    exml:parse(Data);
+parse(fast_xml, Data) ->
+    fxml_stream:parse_element(Data).
