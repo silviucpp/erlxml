@@ -21,7 +21,9 @@ public:
     ~XmlStreamParser();
 
     parse_result FeedData(const uint8_t* data, size_t size, void* user_data);
-    void Reset();
+    void Reset(bool cleanup);
+
+    const ByteBuffer* GetBufferedData() {return &buffer_;}
 
 private:
 

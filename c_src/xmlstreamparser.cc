@@ -72,7 +72,7 @@ XmlStreamParser::parse_result XmlStreamParser::DoProcess(size_t start, size_t en
 
     if(end_stanza_index == -1)
     {
-        Reset();
+        Reset(true);
         return kParseInvalidXml;
     }
 
@@ -82,7 +82,7 @@ XmlStreamParser::parse_result XmlStreamParser::DoProcess(size_t start, size_t en
     {
         if(max_stanza_bytes_ && max_end_position == max_stanza_bytes_)
         {
-            Reset();
+            Reset(false);
             return kParseStanzaLimitHit;
         }
 
@@ -90,7 +90,7 @@ XmlStreamParser::parse_result XmlStreamParser::DoProcess(size_t start, size_t en
         {
             //finished the stream
             end_stream_handler_(user_data, root_name_);
-            Reset();
+            Reset(true);
             return kParseOk;
         }
 
@@ -101,7 +101,7 @@ XmlStreamParser::parse_result XmlStreamParser::DoProcess(size_t start, size_t en
 
     if(!PushStanza(ptr, end_stanza_pos, user_data))
     {
-        Reset();
+        Reset(true);
         return kParseInvalidXml;
     }
 
@@ -206,10 +206,14 @@ bool XmlStreamParser::ProcessRootElement(uint8_t* buffer, size_t length, void* u
     return true;
 }
 
-void XmlStreamParser::Reset()
+void XmlStreamParser::Reset(bool cleanup)
 {
-    buffer_.Clear();
-    buffer_.Resize(kDefaultBufferSize);
+    if(cleanup)
+    {
+        buffer_.Clear();
+        buffer_.Resize(kDefaultBufferSize);
+    }
+
     nested_level_ = -1;
     process_root_ = true;
     last_start_tag_index_ = -1;

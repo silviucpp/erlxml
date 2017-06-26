@@ -58,7 +58,7 @@ test_max_stanza_limit_hit(_Config) ->
     Data = <<"<stream><tag>1</tag></stream>">>,
     {ok, Parser} = erlxml:new_stream([{stanza_limit, 11}]),
     {ok, Parser2} = erlxml:new_stream([{stanza_limit, 12}]),
-    {error, max_stanza_limit_hit} = erlxml:parse_stream(Parser, Data),
+    {error, {max_stanza_limit_hit, <<"<tag>1</tag></stream>">>}} = erlxml:parse_stream(Parser, Data),
     {ok, _} = erlxml:parse_stream(Parser2, Data),
     true.
 
@@ -69,9 +69,10 @@ test_max_stanza_limit_hit_cdata(_Config) ->
     Head = <<"<message type='chat' to='user_1@tsung.wxxw.com' id='c3d6824652fdacdafcc56b9d8fccb550' timestamp='1492994733441777'><body>">>,
     Tail = <<"</body></message>">>,
     Body = binary:copy(<<"1">>, (MaxLimit - (byte_size(Head) + byte_size(Tail)))+Overflow),
-    Stanza = <<"<stream>", Head/binary, Body/binary, Tail/binary, "</stream>">>,
+    PendingBuffer = <<Head/binary, Body/binary, Tail/binary, "</stream>">>,
+    Stanza = <<"<stream>", PendingBuffer/binary>>,
     {ok, Parser} = erlxml:new_stream([{stanza_limit, MaxLimit}]),
-    {error, max_stanza_limit_hit} = erlxml:parse_stream(Parser, Stanza),
+    {error, {max_stanza_limit_hit, PendingBuffer}} = erlxml:parse_stream(Parser, Stanza),
     true.
 
 test_chunks(_Config) ->

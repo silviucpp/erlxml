@@ -65,7 +65,7 @@ Rs = erlxml:parse_stream(Parser, Chunk2),
 When you create a stream using `new_stream/1` you can specify the following options:
 
 - `stanza_limit` - Specify the maximum size a stanza can have. In case the library parses more than this amount of bytes 
-without finding a stanza will return and error `{error, max_stanza_limit_hit}`. Example: `{stanza_limit, 65000}`. By default is 0 which means unlimited.
+without finding a stanza will return and error `{error, {max_stanza_limit_hit, binary()}}`. Example: `{stanza_limit, 65000}`. By default is 0 which means unlimited.
 
 - `strip_non_utf8` - Will strip from attributes values and node values elements all invalid utf8 characters. This is considered 
 user input and might have malformed chars. Default is `false`.
