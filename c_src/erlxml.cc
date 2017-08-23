@@ -168,14 +168,13 @@ ERL_NIF_TERM enif_stream_parser_feed(ErlNifEnv* env, int argc, const ERL_NIF_TER
             return make_ok_result(env, parser_data.term);
 
         case XmlStreamParser::kParseInvalidXml:
-            return make_error(env, ATOMS.atomErrorInvalidStanza);
-
         case XmlStreamParser::kParseStanzaLimitHit:
         {
+            ERL_NIF_TERM error_tag = (result == XmlStreamParser::kParseInvalidXml ? ATOMS.atomErrorInvalidStanza : ATOMS.atomErrorMaxStanzaLimitHit);
             const char* data = reinterpret_cast<const char*>(stream->parser->GetBufferedData()->Data());
             ERL_NIF_TERM binary = make_binary(env, data, stream->parser->GetBufferedData()->Length());
             stream->parser->Reset(true);
-            return make_error(env, enif_make_tuple2(env, ATOMS.atomErrorMaxStanzaLimitHit, binary));
+            return make_error(env, enif_make_tuple2(env, error_tag, binary));
         }
 
         default:

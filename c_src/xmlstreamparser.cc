@@ -72,7 +72,7 @@ XmlStreamParser::parse_result XmlStreamParser::DoProcess(size_t start, size_t en
 
     if(end_stanza_index == -1)
     {
-        Reset(true);
+        Reset(false);
         return kParseInvalidXml;
     }
 
@@ -101,7 +101,7 @@ XmlStreamParser::parse_result XmlStreamParser::DoProcess(size_t start, size_t en
 
     if(!PushStanza(ptr, end_stanza_pos, user_data))
     {
-        Reset(true);
+        Reset(false);
         return kParseInvalidXml;
     }
 

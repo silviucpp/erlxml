@@ -16,6 +16,7 @@ groups() -> [
         test_to_binary_error,
         test_dom_parsing_ok,
         test_dom_parsing_error,
+        test_stream_parsing_error,
         test_max_stanza_limit_hit,
         test_max_stanza_limit_hit_cdata,
         test_chunks,
@@ -51,7 +52,14 @@ test_dom_parsing_ok(_Config) ->
     true.
 
 test_dom_parsing_error(_Config) ->
-    {error,invalid_stanza} = erlxml:parse(<<"<foo attr1='bar'>Some Value<foo">>),
+    InvalidStaza = <<"<foo attr1='bar'>Some Value<foo">>,
+    {error,invalid_stanza} = erlxml:parse(InvalidStaza),
+    true.
+
+test_stream_parsing_error(_Config) ->
+    InvalidStaza = <<"foo attr1='bar'>Some Value<foo">>,
+    {ok, Parser} = erlxml:new_stream(),
+    {error, {invalid_stanza, InvalidStaza}} = erlxml:parse_stream(Parser, InvalidStaza),
     true.
 
 test_max_stanza_limit_hit(_Config) ->

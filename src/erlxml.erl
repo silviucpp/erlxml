@@ -25,7 +25,7 @@ new_stream(Options) ->
     erlxml_nif:new_stream(Options).
 
 -spec parse_stream(reference(), iolist() | binary()) ->
-    {ok, [#xmlstreamstart{} | #xmlel{} | #xmlstreamend{}]} | {error, reason()}.
+    {ok, [#xmlstreamstart{} | #xmlel{} | #xmlstreamend{}]} | {error, reason()} | {error, reason(), binary()}.
 
 parse_stream(Parser, Data) ->
     erlxml_nif:chunk_feed_stream(Parser, Data).
