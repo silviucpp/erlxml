@@ -2,6 +2,12 @@
 #include <assert.h>
 #include <algorithm>
 
+#define DUMP_STANZAS 1
+
+#if defined(DUMP_STANZAS)
+#include <fstream>
+#endif
+
 //http://pugixml.org/docs/manual.html
 //Limitations for stanza detection algorithm (streaming mode):
 //  1. not supporting cdata
@@ -166,10 +172,32 @@ bool XmlStreamParser::PushStanza(uint8_t* buffer, size_t length, void* user_data
 
     if(!kLookupSkipTag[buffer[first_start_tag_index_+1]])
     {
+#if defined(DUMP_STANZAS)
+        pugi::xml_parse_status result = pugi_doc_.load_buffer(buffer, length).status;
+#else
         pugi::xml_parse_status result = pugi_doc_.load_buffer_inplace(buffer, length).status;
+#endif
 
         if(result != pugi::status_ok)
+        {
+#if defined(DUMP_STANZAS)
+            std::ofstream outfile;
+            outfile.open("dump_stanza.txt", std::ios_base::app);
+            outfile<<"parse result:'"<<result<<"'\n";
+            outfile<<"buffer:'"<<buffer<<"'\n";
+            outfile<<"length:"<<length<<"\n";
+            outfile<<"first_start_tag_index_:"<<first_start_tag_index_<<"\n";
+            outfile<<"last_start_tag_index_:"<<last_start_tag_index_<<"\n";
+            outfile<<"nested_level_:"<<nested_level_<<"\n";
+            outfile<<"root_name_:"<<root_name_<<"\n";
+            outfile<<"strip_invalid_utf8_:"<<strip_invalid_utf8_<<"\n";
+            outfile<<"max_stanza_bytes_:"<<max_stanza_bytes_<<"\n";
+            outfile<<"process_root_:"<<process_root_<<"\n";
+            outfile<<"##########################################\n";
+            outfile.close();
+#endif
             return false;
+        }
 
         element_handler_(user_data, pugi_doc_, strip_invalid_utf8_);
     }
