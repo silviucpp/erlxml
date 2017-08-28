@@ -181,11 +181,16 @@ bool XmlStreamParser::PushStanza(uint8_t* buffer, size_t length, void* user_data
         if(result != pugi::status_ok)
         {
 #if defined(DUMP_STANZAS)
+            std::string bf(reinterpret_cast<char*>(buffer), length);
+            std::string bf2(reinterpret_cast<const char*>(buffer_.Data()), buffer_.Length());
+
             std::ofstream outfile;
-            outfile.open("dump_stanza.txt", std::ios_base::app);
+            outfile.open("dump_stanza.txt", std::ios_base::app | std::ios_base::binary);
             outfile<<"parse result:'"<<result<<"'\n";
-            outfile<<"buffer:'"<<buffer<<"'\n";
-            outfile<<"length:"<<length<<"\n";
+            outfile<<"buffer:'"<<bf<<"'\n";
+            outfile<<"buffer_:'"<<bf2<<"'\n";
+            outfile<<"buffer_length:"<<length<<"\n";
+            outfile<<"buffer2_length:"<<buffer_.Length()<<"\n";
             outfile<<"first_start_tag_index_:"<<first_start_tag_index_<<"\n";
             outfile<<"last_start_tag_index_:"<<last_start_tag_index_<<"\n";
             outfile<<"nested_level_:"<<nested_level_<<"\n";
