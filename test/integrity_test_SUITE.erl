@@ -17,6 +17,7 @@ groups() -> [
         test_dom_parsing_ok,
         test_dom_parsing_error,
         test_stream_parsing_error,
+        test_stream_parsing_invalid_stanza_start_error,
         test_max_stanza_limit_hit,
         test_max_stanza_limit_hit_cdata,
         test_chunks,
@@ -62,6 +63,14 @@ test_stream_parsing_error(_Config) ->
     {error, {invalid_stanza, InvalidStaza}} = erlxml:parse_stream(Parser, InvalidStaza),
     true.
 
+test_stream_parsing_invalid_stanza_start_error(_Config) ->
+    {ok, Parser} = erlxml:new_stream(),
+    {ok,[{xmlstreamstart,<<"stream">>,[]}]} = erlxml:parse_stream(Parser, <<"<stream>">>),
+    {ok,[{xmlel,<<"tag1">>,[], [
+        {xmlel,<<"g">>,[],[{xmlcdata,<<"sss">>}]}]}]} = erlxml:parse_stream(Parser, <<" <tag1><g>sss</g></tag1>">>),
+    {error,{invalid_stanza,<<" tag1">>}} = erlxml:parse_stream(Parser, <<" tag1">>),
+    true.
+
 test_max_stanza_limit_hit(_Config) ->
     Data = <<"<stream><tag>1</tag></stream>">>,
     {ok, Parser} = erlxml:new_stream([{stanza_limit, 11}]),
@@ -84,7 +93,7 @@ test_max_stanza_limit_hit_cdata(_Config) ->
     true.
 
 test_chunks(_Config) ->
-    Chunk1 = <<"\n\r dsds <stream ss='aa'><foo attr1=\"bar">>,
+    Chunk1 = <<"\n\r <stream ss='aa'><foo attr1=\"bar">>,
     Chunk2 = <<"\">Some Value</foo><el2 ss='asd'/></stream>">>,
 
     {ok, Parser} = erlxml:new_stream(),

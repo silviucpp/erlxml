@@ -10,6 +10,27 @@
 
 const size_t kDefaultBufferSize = 1024;
 
+// whitespace (space \n \r \t) lookup table
+
+const uint8_t kLookupWhitespace[256] = {
+    0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  1,  0,  0,  1,  0,  0,  // 0
+    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  // 1
+    1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  // 2
+    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  // 3
+    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  // 4
+    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  // 5
+    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  // 6
+    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  // 7
+    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  // 8
+    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  // 9
+    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  // A
+    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  // B
+    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  // C
+    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  // D
+    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  // E
+    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0   // F
+};
+
 // match - ! ? and / . we don't increase the nested level for those in case are before >
 // and also we ignore the stanza's that has only one element of this type (header or comment)
 
@@ -118,6 +139,15 @@ XmlStreamParser::parse_result XmlStreamParser::DoProcess(size_t start, size_t en
 int64_t XmlStreamParser::FindStanzaUpperLimit(const uint8_t* ptr, size_t start, size_t end)
 {
     size_t index = start;
+
+    if(last_start_tag_index_ == -1)
+    {
+        while (index < end && kLookupWhitespace[ptr[index]])
+            index++;
+
+        if(index < end && ptr[index] != '<')
+            return -1;
+    }
 
     for(; index < end; index++)
     {
