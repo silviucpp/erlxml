@@ -2,6 +2,7 @@
 
 //code from pugixml.cpp
 //Copyright (C) 2006-2017, by Arseny Kapoulkine (arseny.kapoulkine@gmail.com)
+//modified to strip some invalid unicode intervals
 
 struct utf8_writer
 {
