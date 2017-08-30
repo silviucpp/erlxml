@@ -22,14 +22,16 @@ struct utf8_writer
             result[1] = static_cast<uint8_t>(0x80 | (ch & 0x3F));
             return result + 2;
         }
-        // U+0800..U+FFFF
-        else
+        // U+0800..U+FFFF (U+0800..U+FDCF, U+FDF0..U+FFFD)
+        else if (ch < 0xfdd0 || (ch > 0xfdef && ch < 0xfffe))
         {
             result[0] = static_cast<uint8_t>(0xE0 | (ch >> 12));
             result[1] = static_cast<uint8_t>(0x80 | ((ch >> 6) & 0x3F));
             result[2] = static_cast<uint8_t>(0x80 | (ch & 0x3F));
             return result + 3;
         }
+
+        return result;
     }
 
     static value_type high(value_type result, uint32_t ch)
@@ -110,7 +112,7 @@ struct utf8_decoder
                 size -= 1;
             }
         }
-        
+
         return result;
     }
 };

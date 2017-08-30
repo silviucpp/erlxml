@@ -23,7 +23,20 @@ groups() -> [
         test_chunks,
         test_skip_header_and_comments,
         test_one_by_one_char,
-        test_strip_invalid_utf8
+        test_strip_invalid_utf8,
+        test_strip_invalid_token_EF_B7_9F,
+        test_strip_invalid_token_EF_B7_90,
+        test_strip_invalid_token_EF_B7_A4,
+        test_strip_invalid_token_EF_B7_AF,
+        test_strip_invalid_token_EF_BF_BE,
+        test_strip_invalid_token_EF_BF_BF,
+        test_succeeded_C3_AF__C2_BF__C2_B0,
+        test_succeeded_C6_87,
+        test_succeeded_EF_B7_89,
+        test_succeeded_EF_B7_B0,
+        test_succeeded_EF_B8_80,
+        test_succeeded_EF_BF_AE,
+        test_succeeded_F0_90_8C_88
     ]}
 ].
 
@@ -156,4 +169,65 @@ test_strip_invalid_utf8(_Config) ->
             [{<<"a">>,<<"123456">>}],
             [{xmlcdata,<<"123456">>}]},
         {xmlstreamend,<<"stream">>}]} = erlxml:parse_stream(Parser, Msg),
+    true.
+
+test_strip_invalid_token_EF_B7_9F(_Config) ->
+    {ok, InvalidToken} = file:read_file("../../test/data/invalid_token_EF_B7_9F.txt"),
+    true = test_strip_invalid_token(InvalidToken, <<"123456">>).
+
+test_strip_invalid_token_EF_B7_90(_Config) ->
+    {ok, InvalidToken} = file:read_file("../../test/data/invalid_token_EF_B7_90.txt"),
+    true = test_strip_invalid_token(InvalidToken, <<"123456">>).
+
+test_strip_invalid_token_EF_B7_A4(_Config) ->
+    {ok, InvalidToken} = file:read_file("../../test/data/invalid_token_EF_B7_A4.txt"),
+    true = test_strip_invalid_token(InvalidToken, <<"123456">>).
+
+test_strip_invalid_token_EF_B7_AF(_Config) ->
+    {ok, InvalidToken} = file:read_file("../../test/data/invalid_token_EF_B7_AF.txt"),
+    true = test_strip_invalid_token(InvalidToken, <<"123456">>).
+
+test_strip_invalid_token_EF_BF_BE(_Config) ->
+    {ok, InvalidToken} = file:read_file("../../test/data/invalid_token_EF_BF_BE.txt"),
+    true = test_strip_invalid_token(InvalidToken, <<"123456">>).
+
+test_strip_invalid_token_EF_BF_BF(_Config) ->
+    {ok, InvalidToken} = file:read_file("../../test/data/invalid_token_EF_BF_BF.txt"),
+    true = test_strip_invalid_token(InvalidToken, <<"123456">>).
+
+test_succeeded_C3_AF__C2_BF__C2_B0(_Config) ->
+    {ok, Token} = file:read_file("../../test/data/succeeded_C3_AF__C2_BF__C2_B0.txt"),
+    true = test_strip_invalid_token(Token, Token).
+
+test_succeeded_C6_87(_Config) ->
+    {ok, Token} = file:read_file("../../test/data/succeeded_C6_87.txt"),
+    true = test_strip_invalid_token(Token, Token).
+
+test_succeeded_EF_B7_89(_Config) ->
+    {ok, Token} = file:read_file("../../test/data/succeeded_EF_B7_89.txt"),
+    true = test_strip_invalid_token(Token, Token).
+
+test_succeeded_EF_B7_B0(_Config) ->
+    {ok, Token} = file:read_file("../../test/data/succeeded_EF_B7_B0.txt"),
+    true = test_strip_invalid_token(Token, Token).
+
+test_succeeded_EF_B8_80(_Config) ->
+    {ok, Token} = file:read_file("../../test/data/succeeded_EF_B8_80.txt"),
+    true = test_strip_invalid_token(Token, Token).
+
+test_succeeded_EF_BF_AE(_Config) ->
+    {ok, Token} = file:read_file("../../test/data/succeeded_EF_BF_AE.txt"),
+    true = test_strip_invalid_token(Token, Token).
+
+test_succeeded_F0_90_8C_88(_Config) ->
+    {ok, Token} = file:read_file("../../test/data/succeeded_F0_90_8C_88.txt"),
+    true = test_strip_invalid_token(Token, Token).
+
+test_strip_invalid_token(InvalidToken, ExpectedResult) ->
+    Data = <<"<iq xmlns='namespace'><body>", InvalidToken/binary,"</body></iq>">>,
+    {ok, Parser} = erlxml:new_stream([{strip_non_utf8, true}]),
+    {ok,[{xmlstreamstart,<<"stream">>,[]}]} = erlxml:parse_stream(Parser, <<"<stream>">>),
+    {ok,[{xmlel,<<"iq">>,
+        [{<<"xmlns">>,<<"namespace">>}],
+        [{xmlel,<<"body">>,[],[{xmlcdata, ExpectedResult}]}]}]} = erlxml:parse_stream(Parser, Data),
     true.
