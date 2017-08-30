@@ -1,6 +1,6 @@
 {application, erlxml, [
     {description, "erlxml - Erlang XML parsing library based on pugixml"},
-    {vsn, "1.0"},
+    {vsn, "1.1"},
     {registered, []},
     {applications, [kernel, stdlib]},
     {env, []}
