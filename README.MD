@@ -75,6 +75,9 @@ user input and might have malformed chars. Default is `false`.
 The benchmark code is inside the benchmark folder. You need to get [exml][3] from Erlang Solutions and [fast_xml][4] from ProcessOne as dependencies 
 because all measurements are against this libraries. 
 
+- [exml][3] version used: 3.0.1
+- [fast_xml][4] version used: 1.1.30
+
 All tests are run with 3 concurrency levels (how many erlang processes are spawn)
 
 - C1 (concurrency level 1)
@@ -91,9 +94,15 @@ benchmark:bench_parsing(erlxml|exml, 600000, 1|5|10).
 
 | Library    | C1 (ms)      |   C5 (ms) | C10 (ms)  |
 |:----------:|:------------:|:---------:|:---------:|
-| erlxml     |  2082.619    |  552.734  |  593.192  |
-| exml       | 26704.861    | 7094.698  | 6805.855  |
-| fast_xml   | 18706.898    | 4635.46   | 4934.661  |
+| erlxml     |  1942.053    |  511.619  |  522.938  |
+| exml       |  1847.879    |  523.957  |  567.417  |
+| fast_xml   | 21153.454    | 5584.026  | 5812.703  |
+
+Note: 
+
+- Starting version 3.0.0, [exml][3] improved a lot by replacing Expat with RapidXML, for example before this switch the results
+were 26704.861 ms for C1, 7094.698 for C5 and 5812.703 for C10. Now results are comparable with erlxml.
+- Difference between erlxml and exml performances because is so small we can say they offer same performance from speed point of view.
 
 ##### Generate an XML document from Erlang terms
 
@@ -105,9 +114,9 @@ benchmark:bench_encoding(erlxml|exml, 600000, 1|5|10).
 
 | Library    | C1 (ms)      |   C5 (ms) | C10 (ms)  |
 |:----------:|:------------:|:---------:|:---------:|
-| erlxml     | 2471.132     |  662.597  |  711.514  |
-| exml       | 6687.634     | 1853.416  | 1765.119  |
-| fast_xml   | 2112.349     |  483.353  |  446.801  |
+| erlxml     | 2285.361     |  635.57   |   687.78  |
+| exml       | 2035.966     |  571.194  |  603.406  |
+| fast_xml   | 1282.113     |  361.599  |  392.007  |
 
 ##### Streaming parsing
 
@@ -116,24 +125,29 @@ my test is around 1.38 GB) :
 
 ```erlang
 benchmark_stream:bench(exml, "/Users/silviu/Desktop/example.txt", 30000, 1).
-### 44522.645 ms 31.73 MB/sec total bytes processed: 1.38 GB 
+### 32933.493 ms 42.90 MB/sec total bytes processed: 1.38 GB
 benchmark_stream:bench(exml, "/Users/silviu/Desktop/example.txt", 30000, 5).
-### 12297.572 ms 114.89 MB/sec total bytes processed: 1.38 GB 
+### 9231.714 ms 153.05 MB/sec total bytes processed: 1.38 GB
 benchmark_stream:bench(exml, "/Users/silviu/Desktop/example.txt", 30000, 10).
-### 12535.643 ms 112.71 MB/sec total bytes processed: 1.38 GB 
+### 9693.043 ms 145.77 MB/sec total bytes processed: 1.38 GB
 
 benchmark_stream:bench(erlxml, "/Users/silviu/Desktop/example.txt", 30000, 1). 
-### 9898.998 ms 142.73 MB/sec total bytes processed: 1.38 GB 
+### 10580.888 ms 133.53 MB/sec total bytes processed: 1.38 GB
 benchmark_stream:bench(erlxml, "/Users/silviu/Desktop/example.txt", 30000, 5).
-### 2620.594 ms 539.16 MB/sec total bytes processed: 1.38 GB 
+### 2662.581 ms 530.66 MB/sec total bytes processed: 1.38 GB
 benchmark_stream:bench(erlxml, "/Users/silviu/Desktop/example.txt", 30000, 10).
-### 2529.72 ms 558.53 MB/sec total bytes processed: 1.38 GB 
+### 2579.559 ms 547.74 MB/sec total bytes processed: 1.38 GB
 ```
 
 | Library    | C1 (MB/s)      |   C5 (MB/s) | C10 (MB/s)  |
 |:----------:|:--------------:|:-----------:|:-----------:|
-| erlxml     | 142.73         |  539.16     |  558.53     |
-| exml       | 31.73          |  114.89     | 112.71      |
+| erlxml     | 133.53         |  530.66     |  547.74     |
+| exml       |  42.90         |  153.05     |  145.77     |
+
+Notes:
+
+- Starting version 3.0.0, [exml][3] improved by replacing Expat with RapidXML with arount 27% but is still way ahead erlxml.
+
 
 [1]:http://pugixml.org
 [2]:http://pugixml.org/benchmark.html
