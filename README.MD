@@ -146,7 +146,7 @@ benchmark_stream:bench(erlxml, "/Users/silviu/Desktop/example.txt", 30000, 10).
 
 Notes:
 
-- Starting version 3.0.0, [exml][3] improved by replacing Expat with RapidXML with arount 27% but is still way ahead erlxml.
+- Starting version 3.0.0, [exml][3] improved by replacing Expat with RapidXML with arount 27% but is still way behind erlxml.
 
 
 [1]:http://pugixml.org
