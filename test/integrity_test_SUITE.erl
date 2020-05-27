@@ -5,6 +5,8 @@
 
 -compile(export_all).
 
+-define(ROOT_DATA, "../../../../test/data").
+
 all() -> [
     {group, erlxml_group}
 ].
@@ -172,55 +174,55 @@ test_strip_invalid_utf8(_Config) ->
     true.
 
 test_strip_invalid_token_EF_B7_9F(_Config) ->
-    {ok, InvalidToken} = file:read_file("../../test/data/invalid_token_EF_B7_9F.txt"),
+    {ok, InvalidToken} = file:read_file(<<?ROOT_DATA, "/invalid_token_EF_B7_9F.txt">>),
     true = test_strip_invalid_token(InvalidToken, <<"123456">>).
 
 test_strip_invalid_token_EF_B7_90(_Config) ->
-    {ok, InvalidToken} = file:read_file("../../test/data/invalid_token_EF_B7_90.txt"),
+    {ok, InvalidToken} = file:read_file(<<?ROOT_DATA, "/invalid_token_EF_B7_90.txt">>),
     true = test_strip_invalid_token(InvalidToken, <<"123456">>).
 
 test_strip_invalid_token_EF_B7_A4(_Config) ->
-    {ok, InvalidToken} = file:read_file("../../test/data/invalid_token_EF_B7_A4.txt"),
+    {ok, InvalidToken} = file:read_file(<<?ROOT_DATA, "/invalid_token_EF_B7_A4.txt">>),
     true = test_strip_invalid_token(InvalidToken, <<"123456">>).
 
 test_strip_invalid_token_EF_B7_AF(_Config) ->
-    {ok, InvalidToken} = file:read_file("../../test/data/invalid_token_EF_B7_AF.txt"),
+    {ok, InvalidToken} = file:read_file(<<?ROOT_DATA, "/invalid_token_EF_B7_AF.txt">>),
     true = test_strip_invalid_token(InvalidToken, <<"123456">>).
 
 test_strip_invalid_token_EF_BF_BE(_Config) ->
-    {ok, InvalidToken} = file:read_file("../../test/data/invalid_token_EF_BF_BE.txt"),
+    {ok, InvalidToken} = file:read_file(<<?ROOT_DATA, "/invalid_token_EF_BF_BE.txt">>),
     true = test_strip_invalid_token(InvalidToken, <<"123456">>).
 
 test_strip_invalid_token_EF_BF_BF(_Config) ->
-    {ok, InvalidToken} = file:read_file("../../test/data/invalid_token_EF_BF_BF.txt"),
+    {ok, InvalidToken} = file:read_file(<<?ROOT_DATA, "/invalid_token_EF_BF_BF.txt">>),
     true = test_strip_invalid_token(InvalidToken, <<"123456">>).
 
 test_succeeded_C3_AF__C2_BF__C2_B0(_Config) ->
-    {ok, Token} = file:read_file("../../test/data/succeeded_C3_AF__C2_BF__C2_B0.txt"),
+    {ok, Token} = file:read_file(<<?ROOT_DATA, "/succeeded_C3_AF__C2_BF__C2_B0.txt">>),
     true = test_strip_invalid_token(Token, Token).
 
 test_succeeded_C6_87(_Config) ->
-    {ok, Token} = file:read_file("../../test/data/succeeded_C6_87.txt"),
+    {ok, Token} = file:read_file(<<?ROOT_DATA, "/succeeded_C6_87.txt">>),
     true = test_strip_invalid_token(Token, Token).
 
 test_succeeded_EF_B7_89(_Config) ->
-    {ok, Token} = file:read_file("../../test/data/succeeded_EF_B7_89.txt"),
+    {ok, Token} = file:read_file(<<?ROOT_DATA, "/succeeded_EF_B7_89.txt">>),
     true = test_strip_invalid_token(Token, Token).
 
 test_succeeded_EF_B7_B0(_Config) ->
-    {ok, Token} = file:read_file("../../test/data/succeeded_EF_B7_B0.txt"),
+    {ok, Token} = file:read_file(<<?ROOT_DATA, "/succeeded_EF_B7_B0.txt">>),
     true = test_strip_invalid_token(Token, Token).
 
 test_succeeded_EF_B8_80(_Config) ->
-    {ok, Token} = file:read_file("../../test/data/succeeded_EF_B8_80.txt"),
+    {ok, Token} = file:read_file(<<?ROOT_DATA, "/succeeded_EF_B8_80.txt">>),
     true = test_strip_invalid_token(Token, Token).
 
 test_succeeded_EF_BF_AE(_Config) ->
-    {ok, Token} = file:read_file("../../test/data/succeeded_EF_BF_AE.txt"),
+    {ok, Token} = file:read_file(<<?ROOT_DATA, "/succeeded_EF_BF_AE.txt">>),
     true = test_strip_invalid_token(Token, Token).
 
 test_succeeded_F0_90_8C_88(_Config) ->
-    {ok, Token} = file:read_file("../../test/data/succeeded_F0_90_8C_88.txt"),
+    {ok, Token} = file:read_file(<<?ROOT_DATA, "/succeeded_F0_90_8C_88.txt">>),
     true = test_strip_invalid_token(Token, Token).
 
 test_strip_invalid_token(InvalidToken, ExpectedResult) ->
