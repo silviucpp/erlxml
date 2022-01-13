@@ -1,7 +1,31 @@
 {application, erlxml, [
     {description, "erlxml - Erlang XML parsing library based on pugixml"},
-    {vsn, "1.3.0"},
+    {licenses, ["MIT"]},
+    {links,[{"Github","https://github.com/silviucpp/erlxml"}]},
+    {vsn, "1.3.1"},
     {registered, []},
-    {applications, [kernel, stdlib]},
-    {env, []}
+    {applications, [
+        kernel,
+        stdlib
+    ]},
+    {env, []},
+    {files, [
+        "LICENSE*",
+        "*.MD",
+        "Makefile",
+        "rebar.config",
+        "rebar.lock",
+        "include/*.hrl",
+        "src/*.erl",
+        "src/*.src",
+        "benchmark/*.erl",
+        "c_src/pugixml/*.hpp",
+        "c_src/pugixml/*.cpp",
+        "c_src/*.h",
+        "c_src/*.cc",
+        "c_src/Makefile",
+        "c_src/nif.mk",
+        "test/*.erl",
+        "test/data/*.txt"
+    ]}
 ]}.
