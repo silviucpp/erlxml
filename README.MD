@@ -3,7 +3,7 @@
 *erlxml - Erlang XML parsing library based on pugixml*
 
 [![Build Status](https://travis-ci.com/silviucpp/erlxml.svg?branch=master)](https://travis-ci.com/github/silviucpp/erlxml)
-![GitHub](https://img.shields.io/github/license/silviucpp/erlxml) 
+[![GitHub](https://img.shields.io/github/license/silviucpp/erlxml)](https://github.com/silviucpp/erlxml/blob/master/LICENSE)
 
 # Implementation notes
 
