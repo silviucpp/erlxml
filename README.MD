@@ -128,7 +128,7 @@ Note:
 Test is located in `benchmark/benchmark_stream.erl`, and will load all stanza's from `test/data/stream.txt` and run the parsing mode over that stanza's for 60000 times:
 
 ```sh
-make bench_encoding
+make bench_streaming
 ```
 
 ```sh
