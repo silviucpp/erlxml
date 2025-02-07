@@ -1,9 +1,10 @@
 -module(benchmark_stream).
--author("silviu.caragea").
 
 -define(CHUNK_SIZE, 1024).
 
--export([bench/4]).
+-export([
+    bench/4
+]).
 
 bench(Module, File, Number, Concurrency) ->
     {Chunks, BinarySize} = readlines(File, ?CHUNK_SIZE),
@@ -16,7 +17,8 @@ bench(Module, File, Number, Concurrency) ->
         {ok, Parser} = new_parser(Module),
         NewParser1 = run_parser([<<"<stream>">>], Module, Parser),
         NewParser2 = loop(LoopNumbers, Chunks, Module, NewParser1),
-        run_parser([<<"</stream>">>], Module, NewParser2),
+        NewParser3 = run_parser([<<"</stream>">>], Module, NewParser2),
+        close(Module, NewParser3),
         Self ! {self(), done}
     end,
 
@@ -25,7 +27,7 @@ bench(Module, File, Number, Concurrency) ->
     [receive {Pid, done} -> ok end || Pid <- Pids],
     B = os:timestamp(),
 
-    print(BinarySize*Number, A, B).
+    print(Module, Concurrency, BinarySize*Number, A, B).
 
 loop(0, _Chunks, _Module, Parser) ->
     Parser;
@@ -47,6 +49,10 @@ new_parser(erlxml) ->
     erlxml:new_stream([{stanza_limit, 65000}]);
 new_parser(exml) ->
     exml_stream:new_parser();
+new_parser(fast_xml) ->
+    Parent = self(),
+    ConsumerPid = spawn_link(fun() -> ok = fxml_receive_till_end(), Parent ! {fxml_completed, self()} end),
+    {ok, fxml_stream:new(ConsumerPid)};
 new_parser(dummy) ->
     {ok, null}.
 
@@ -54,8 +60,21 @@ stream_parse(erlxml, Parser, Data) ->
     erlxml:parse_stream(Parser, Data);
 stream_parse(exml, Parser , Data) ->
     exml_stream:parse(Parser, Data);
+stream_parse(fast_xml, Parser, Data) ->
+    {ok, fxml_stream:parse(Parser, Data)};
 stream_parse(dummy, _Parser , _Data) ->
     {ok, []}.
+
+close(fast_xml, Parser) ->
+    fxml_stream:close(Parser),
+    receive
+        {fxml_completed, _ConsumerPid} ->
+            ok
+    end;
+close(exml, Parser) ->
+    exml_stream:free_parser(Parser);
+close(_Module, _Parser) ->
+    ok.
 
 readlines(FileName, LengthChunks) ->
     {ok, Device} = file:open(FileName, [read]),
@@ -89,12 +108,12 @@ binary_join([Part]) ->
 binary_join([Head|Tail]) ->
     lists:foldl(fun (Value, Acc) -> <<Acc/binary , Value/binary>> end, Head, Tail).
 
-print(Bytes, A, B) ->
-    Microsecs = timer:now_diff(B, A),
-    Milliseconds = Microsecs/1000,
+print(Module, Concurrency, Bytes, A, B) ->
+    Microsecond = timer:now_diff(B, A),
+    Milliseconds = Microsecond /1000,
     Secs = Milliseconds/1000,
     BytesPerSec = Bytes/Secs,
-    io:format("### ~p ms ~s/sec total bytes processed: ~s ~n", [Milliseconds, format_size(BytesPerSec), format_size(Bytes)]).
+    io:format("### engine: ~p concurrency: ~p -> ~p ms ~s/sec total bytes processed: ~s ~n", [Module, Concurrency, Milliseconds, format_size(BytesPerSec), format_size(Bytes)]).
 
 format_size(Size) ->
     format_size(Size, ["B","KB","MB","GB","TB","PB"]).
@@ -102,3 +121,14 @@ format_size(Size) ->
 format_size(S, [_|[_|_] = L]) when S >= 1024 -> format_size(S/1024, L);
 format_size(S, [M|_]) ->
     io_lib:format("~.2f ~s", [float(S), M]).
+
+fxml_receive_till_end() ->
+    receive
+        {'$gen_event', Msg} ->
+            case Msg of
+                {xmlstreamend, _} ->
+                    ok;
+                _ ->
+                    fxml_receive_till_end()
+            end
+    end.

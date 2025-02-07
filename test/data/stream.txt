@@ -1,0 +1,214 @@
+<stream:stream to="example.com" from="user@domain.com" version="1.0" xmlns:stream="http://etherx.jabber.org/streams">
+    <stream:features>
+        <mechanisms xmlns="urn:ietf:params:xml:ns:xmpp-sasl">
+            <mechanism>PLAIN</mechanism>
+            <mechanism>SCRAM-SHA-1</mechanism>
+        </mechanisms>
+        <compression xmlns="http://jabber.org/protocol/compress">
+            <method>zlib</method>
+        </compression>
+    </stream:features>
+
+    <!-- 10 IQ stanzas -->
+    <iq type="get" id="1">
+        <query xmlns="jabber:iq:auth">
+            <username>user1</username>
+            <password>password1</password>
+        </query>
+    </iq>
+    <iq type="get" id="2">
+        <query xmlns="jabber:iq:auth">
+            <username>user2</username>
+            <password>password2</password>
+        </query>
+    </iq>
+    <iq type="get" id="3">
+        <query xmlns="jabber:iq:auth">
+            <username>user3</username>
+            <password>password3</password>
+        </query>
+    </iq>
+    <iq type="get" id="4">
+        <query xmlns="jabber:iq:auth">
+            <username>user4</username>
+            <password>password4</password>
+        </query>
+    </iq>
+    <iq type="get" id="5">
+        <query xmlns="jabber:iq:auth">
+            <username>user5</username>
+            <password>password5</password>
+        </query>
+    </iq>
+    <iq type="get" id="6">
+        <query xmlns="jabber:iq:auth">
+            <username>user6</username>
+            <password>password6</password>
+        </query>
+    </iq>
+    <iq type="get" id="7">
+        <query xmlns="jabber:iq:auth">
+            <username>user7</username>
+            <password>password7</password>
+        </query>
+    </iq>
+    <iq type="get" id="8">
+        <query xmlns="jabber:iq:auth">
+            <username>user8</username>
+            <password>password8</password>
+        </query>
+    </iq>
+    <iq type="get" id="9">
+        <query xmlns="jabber:iq:auth">
+            <username>user9</username>
+            <password>password9</password>
+        </query>
+    </iq>
+    <iq type="get" id="10">
+        <query xmlns="jabber:iq:auth">
+            <username>user10</username>
+            <password>password10</password>
+        </query>
+    </iq>
+
+    <!-- 20 Message stanzas -->
+    <message to="user2@domain.com" from="user@domain.com" type="chat" id="msg1">
+        <body>Hello, user2!</body>
+    </message>
+    <message to="user3@domain.com" from="user@domain.com" type="chat" id="msg2">
+        <body>Hello, user3!</body>
+    </message>
+    <message to="user4@domain.com" from="user@domain.com" type="chat" id="msg3">
+        <body>Hello, user4!</body>
+    </message>
+    <message to="user5@domain.com" from="user@domain.com" type="chat" id="msg4">
+        <body>Hello, user5!</body>
+    </message>
+    <message to="user6@domain.com" from="user@domain.com" type="chat" id="msg5">
+        <body>Hello, user6!</body>
+    </message>
+    <message to="user7@domain.com" from="user@domain.com" type="chat" id="msg6">
+        <body>Hello, user7!</body>
+    </message>
+    <message to="user8@domain.com" from="user@domain.com" type="chat" id="msg7">
+        <body>Hello, user8!</body>
+    </message>
+    <message to="user9@domain.com" from="user@domain.com" type="chat" id="msg8">
+        <body>Hello, user9!</body>
+    </message>
+    <message to="user10@domain.com" from="user@domain.com" type="chat" id="msg9">
+        <body>Hello, user10!</body>
+    </message>
+    <message to="user11@domain.com" from="user@domain.com" type="chat" id="msg10">
+        <body>Hello, user11!</body>
+    </message>
+    <message to="user12@domain.com" from="user@domain.com" type="chat" id="msg11">
+        <body>Hello, user12!</body>
+    </message>
+    <message to="user13@domain.com" from="user@domain.com" type="chat" id="msg12">
+        <body>Hello, user13!</body>
+    </message>
+    <message to="user14@domain.com" from="user@domain.com" type="chat" id="msg13">
+        <body>Hello, user14!</body>
+    </message>
+    <message to="user15@domain.com" from="user@domain.com" type="chat" id="msg14">
+        <body>Hello, user15!</body>
+    </message>
+    <message to="user16@domain.com" from="user@domain.com" type="chat" id="msg15">
+        <body>Hello, user16!</body>
+    </message>
+    <message to="user17@domain.com" from="user@domain.com" type="chat" id="msg16">
+        <body>Hello, user17!</body>
+    </message>
+    <message to="user18@domain.com" from="user@domain.com" type="chat" id="msg17">
+        <body>Hello, user18!</body>
+    </message>
+    <message to="user19@domain.com" from="user@domain.com" type="chat" id="msg18">
+        <body>Hello, user19!</body>
+    </message>
+    <message to="user20@domain.com" from="user@domain.com" type="chat" id="msg19">
+        <body>Hello, user20!</body>
+    </message>
+    <message to="user21@domain.com" from="user@domain.com" type="chat" id="msg20">
+        <body>Hello, user21!</body>
+    </message>
+
+    <!-- 20 Presence stanzas -->
+    <presence to="user2@domain.com" from="user@domain.com" type="available">
+        <show>chat</show>
+        <status>Available</status>
+    </presence>
+    <presence to="user3@domain.com" from="user@domain.com" type="available">
+        <show>chat</show>
+        <status>Available</status>
+    </presence>
+    <presence to="user4@domain.com" from="user@domain.com" type="available">
+        <show>chat</show>
+        <status>Available</status>
+    </presence>
+    <presence to="user5@domain.com" from="user@domain.com" type="available">
+        <show>chat</show>
+        <status>Available</status>
+    </presence>
+    <presence to="user6@domain.com" from="user@domain.com" type="available">
+        <show>chat</show>
+        <status>Available</status>
+    </presence>
+    <presence to="user7@domain.com" from="user@domain.com" type="available">
+        <show>chat</show>
+        <status>Available</status>
+    </presence>
+    <presence to="user8@domain.com" from="user@domain.com" type="available">
+        <show>chat</show>
+        <status>Available</status>
+    </presence>
+    <presence to="user9@domain.com" from="user@domain.com" type="available">
+        <show>chat</show>
+        <status>Available</status>
+    </presence>
+    <presence to="user10@domain.com" from="user@domain.com" type="available">
+        <show>chat</show>
+        <status>Available</status>
+    </presence>
+    <presence to="user11@domain.com" from="user@domain.com" type="available">
+        <show>chat</show>
+        <status>Available</status>
+    </presence>
+    <presence to="user12@domain.com" from="user@domain.com" type="available">
+        <show>chat</show>
+        <status>Available</status>
+    </presence>
+    <presence to="user13@domain.com" from="user@domain.com" type="available">
+        <show>chat</show>
+        <status>Available</status>
+    </presence>
+    <presence to="user14@domain.com" from="user@domain.com" type="available">
+        <show>chat</show>
+        <status>Available</status>
+    </presence>
+    <presence to="user15@domain.com" from="user@domain.com" type="available">
+        <show>chat</show>
+        <status>Available</status>
+    </presence>
+    <presence to="user16@domain.com" from="user@domain.com" type="available">
+        <show>chat</show>
+        <status>Available</status>
+    </presence>
+    <presence to="user17@domain.com" from="user@domain.com" type="available">
+        <show>chat</show>
+        <status>Available</status>
+    </presence>
+    <presence to="user18@domain.com" from="user@domain.com" type="available">
+        <show>chat</show>
+        <status>Available</status>
+    </presence>
+    <presence to="user19@domain.com" from="user@domain.com" type="available">
+        <show>chat</show>
+        <status>Available</status>
+    </presence>
+    <presence to="user20@domain.com" from="user@domain.com" type="available">
+        <show>chat</show>
+        <status>Available</status>
+    </presence>
+
+</stream:stream>

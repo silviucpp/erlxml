@@ -1,84 +1,40 @@
--module(integrity_test_SUITE).
--author("silviu.caragea").
+-module(integrity_test).
 
--include_lib("common_test/include/ct.hrl").
+-include_lib("eunit/include/eunit.hrl").
 
--compile(export_all).
+-define(ROOT_DATA, "test/data").
 
--define(ROOT_DATA, "../../../../test/data").
-
-all() -> [
-    {group, erlxml_group}
-].
-
-groups() -> [
-    {erlxml_group, [sequence], [
-        test_bad_options,
-        test_to_binary_ok,
-        test_to_binary_error,
-        test_dom_parsing_ok,
-        test_dom_parsing_error,
-        test_stream_parsing_error,
-        test_stream_parsing_invalid_stanza_start_error,
-        test_max_stanza_limit_hit,
-        test_max_stanza_limit_hit_cdata,
-        test_chunks,
-        test_skip_header_and_comments,
-        test_one_by_one_char,
-        test_strip_invalid_utf8,
-        test_strip_invalid_token_EF_B7_9F,
-        test_strip_invalid_token_EF_B7_90,
-        test_strip_invalid_token_EF_B7_A4,
-        test_strip_invalid_token_EF_B7_AF,
-        test_strip_invalid_token_EF_BF_BE,
-        test_strip_invalid_token_EF_BF_BF,
-        test_succeeded_C3_AF__C2_BF__C2_B0,
-        test_succeeded_C6_87,
-        test_succeeded_EF_B7_89,
-        test_succeeded_EF_B7_B0,
-        test_succeeded_EF_B8_80,
-        test_succeeded_EF_BF_AE,
-        test_succeeded_F0_90_8C_88
-    ]}
-].
-
-init_per_suite(Config) ->
-    Config.
-
-end_per_suite(_Config) ->
-    ok.
-
-test_bad_options(_Config) ->
+bad_options_test() ->
     {error,{options,{unavailable_option,1}}} = erlxml:new_stream([{unavailable_option, 1}]),
     true.
 
-test_to_binary_ok(_Config) ->
+to_binary_ok_test() ->
     Xml = {xmlel,<<"foo">>, [{<<"attr1">>,<<"bar">>}], [{xmlcdata,<<"Some Value">>}]},
     <<"<foo attr1=\"bar\">Some Value</foo>">> = erlxml:to_binary(Xml),
     true.
 
-test_to_binary_error(_Config) ->
+to_binary_error_test() ->
     Xml = {axmlel,<<"foo">>, [{<<"attr1">>,<<"bar">>}], [{xmlcdata,<<"Some Value">>}]},
     {error, badarg} = erlxml:to_binary(Xml),
     true.
 
-test_dom_parsing_ok(_Config) ->
+dom_parsing_ok_test() ->
     {ok,{xmlel,<<"foo">>, [{<<"attr1">>,<<"bar">>}], [{xmlcdata,<<"Some Value">>}]}} =
         erlxml:parse(<<"<foo attr1='bar'>Some Value</foo>">>),
     true.
 
-test_dom_parsing_error(_Config) ->
+dom_parsing_error_test() ->
     InvalidStaza = <<"<foo attr1='bar'>Some Value<foo">>,
     {error,invalid_stanza} = erlxml:parse(InvalidStaza),
     true.
 
-test_stream_parsing_error(_Config) ->
+stream_parsing_error_test() ->
     InvalidStaza = <<"foo attr1='bar'>Some Value<foo">>,
     {ok, Parser} = erlxml:new_stream(),
     {error, {invalid_stanza, InvalidStaza}} = erlxml:parse_stream(Parser, InvalidStaza),
     true.
 
-test_stream_parsing_invalid_stanza_start_error(_Config) ->
+stream_parsing_invalid_stanza_start_error_test() ->
     {ok, Parser} = erlxml:new_stream(),
     {ok,[{xmlstreamstart,<<"stream">>,[]}]} = erlxml:parse_stream(Parser, <<"<stream>">>),
     {ok,[{xmlel,<<"tag1">>,[], [
@@ -86,7 +42,7 @@ test_stream_parsing_invalid_stanza_start_error(_Config) ->
     {error,{invalid_stanza,<<" tag1">>}} = erlxml:parse_stream(Parser, <<" tag1">>),
     true.
 
-test_max_stanza_limit_hit(_Config) ->
+max_stanza_limit_hit_test() ->
     Data = <<"<stream><tag>1</tag></stream>">>,
     {ok, Parser} = erlxml:new_stream([{stanza_limit, 11}]),
     {ok, Parser2} = erlxml:new_stream([{stanza_limit, 12}]),
@@ -94,7 +50,7 @@ test_max_stanza_limit_hit(_Config) ->
     {ok, _} = erlxml:parse_stream(Parser2, Data),
     true.
 
-test_max_stanza_limit_hit_cdata(_Config) ->
+max_stanza_limit_hit_cdata_test() ->
     MaxLimit = 65536,
     Overflow = 1,
 
@@ -107,7 +63,7 @@ test_max_stanza_limit_hit_cdata(_Config) ->
     {error, {max_stanza_limit_hit, PendingBuffer}} = erlxml:parse_stream(Parser, Stanza),
     true.
 
-test_chunks(_Config) ->
+chunks_test() ->
     Chunk1 = <<"\n\r <stream ss='aa'><foo attr1=\"bar">>,
     Chunk2 = <<"\">Some Value</foo><el2 ss='asd'/></stream>">>,
 
@@ -120,7 +76,7 @@ test_chunks(_Config) ->
         {xmlstreamend,<<"stream">>}]} = erlxml:parse_stream(Parser, Chunk2),
     true.
 
-test_skip_header_and_comments(_Config) ->
+skip_header_and_comments_test() ->
     Data = <<"<?xml version='1.0'?>
     <!-- comment is here -->
     <stream>
@@ -146,7 +102,7 @@ test_skip_header_and_comments(_Config) ->
         {xmlstreamend,<<"stream">>}]} = erlxml:parse_stream(Parser, binary_to_list(Data)),
     true.
 
-test_one_by_one_char(_Config) ->
+one_by_one_char_test() ->
     Data = <<"<?xml version='1.0'?>
     <!-- comment is here -->
     <stream>
@@ -160,7 +116,7 @@ test_one_by_one_char(_Config) ->
     [{ok, _} = erlxml:parse_stream(Parser, [X]) || <<X:1/binary>> <= Data],
     true.
 
-test_strip_invalid_utf8(_Config) ->
+strip_invalid_utf8_test() ->
     Data0 = <<"123🏇4567">>,
     Length = byte_size(Data0) -1,
     <<Data:Length/binary, _/binary>> = Data0,
@@ -173,57 +129,59 @@ test_strip_invalid_utf8(_Config) ->
         {xmlstreamend,<<"stream">>}]} = erlxml:parse_stream(Parser, Msg),
     true.
 
-test_strip_invalid_token_EF_B7_9F(_Config) ->
+strip_invalid_token_EF_B7_9F_test() ->
     {ok, InvalidToken} = file:read_file(<<?ROOT_DATA, "/invalid_token_EF_B7_9F.txt">>),
     true = test_strip_invalid_token(InvalidToken, <<"123456">>).
 
-test_strip_invalid_token_EF_B7_90(_Config) ->
+strip_invalid_token_EF_B7_90_test() ->
     {ok, InvalidToken} = file:read_file(<<?ROOT_DATA, "/invalid_token_EF_B7_90.txt">>),
     true = test_strip_invalid_token(InvalidToken, <<"123456">>).
 
-test_strip_invalid_token_EF_B7_A4(_Config) ->
+strip_invalid_token_EF_B7_A4_test() ->
     {ok, InvalidToken} = file:read_file(<<?ROOT_DATA, "/invalid_token_EF_B7_A4.txt">>),
     true = test_strip_invalid_token(InvalidToken, <<"123456">>).
 
-test_strip_invalid_token_EF_B7_AF(_Config) ->
+strip_invalid_token_EF_B7_AF_test() ->
     {ok, InvalidToken} = file:read_file(<<?ROOT_DATA, "/invalid_token_EF_B7_AF.txt">>),
     true = test_strip_invalid_token(InvalidToken, <<"123456">>).
 
-test_strip_invalid_token_EF_BF_BE(_Config) ->
+strip_invalid_token_EF_BF_BE_test() ->
     {ok, InvalidToken} = file:read_file(<<?ROOT_DATA, "/invalid_token_EF_BF_BE.txt">>),
     true = test_strip_invalid_token(InvalidToken, <<"123456">>).
 
-test_strip_invalid_token_EF_BF_BF(_Config) ->
+strip_invalid_token_EF_BF_BF_test() ->
     {ok, InvalidToken} = file:read_file(<<?ROOT_DATA, "/invalid_token_EF_BF_BF.txt">>),
     true = test_strip_invalid_token(InvalidToken, <<"123456">>).
 
-test_succeeded_C3_AF__C2_BF__C2_B0(_Config) ->
+succeeded_C3_AF__C2_BF__C2_B0_test() ->
     {ok, Token} = file:read_file(<<?ROOT_DATA, "/succeeded_C3_AF__C2_BF__C2_B0.txt">>),
     true = test_strip_invalid_token(Token, Token).
 
-test_succeeded_C6_87(_Config) ->
+succeeded_C6_87_test() ->
     {ok, Token} = file:read_file(<<?ROOT_DATA, "/succeeded_C6_87.txt">>),
     true = test_strip_invalid_token(Token, Token).
 
-test_succeeded_EF_B7_89(_Config) ->
+succeeded_EF_B7_89_test() ->
     {ok, Token} = file:read_file(<<?ROOT_DATA, "/succeeded_EF_B7_89.txt">>),
     true = test_strip_invalid_token(Token, Token).
 
-test_succeeded_EF_B7_B0(_Config) ->
+succeeded_EF_B7_B0_test() ->
     {ok, Token} = file:read_file(<<?ROOT_DATA, "/succeeded_EF_B7_B0.txt">>),
     true = test_strip_invalid_token(Token, Token).
 
-test_succeeded_EF_B8_80(_Config) ->
+succeeded_EF_B8_80_test() ->
     {ok, Token} = file:read_file(<<?ROOT_DATA, "/succeeded_EF_B8_80.txt">>),
     true = test_strip_invalid_token(Token, Token).
 
-test_succeeded_EF_BF_AE(_Config) ->
+succeeded_EF_BF_AE_test() ->
     {ok, Token} = file:read_file(<<?ROOT_DATA, "/succeeded_EF_BF_AE.txt">>),
     true = test_strip_invalid_token(Token, Token).
 
-test_succeeded_F0_90_8C_88(_Config) ->
+succeeded_F0_90_8C_88_test() ->
     {ok, Token} = file:read_file(<<?ROOT_DATA, "/succeeded_F0_90_8C_88.txt">>),
     true = test_strip_invalid_token(Token, Token).
+
+% internals
 
 test_strip_invalid_token(InvalidToken, ExpectedResult) ->
     Data = <<"<iq xmlns='namespace'><body>", InvalidToken/binary,"</body></iq>">>,

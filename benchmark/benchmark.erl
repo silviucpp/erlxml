@@ -1,5 +1,4 @@
 -module(benchmark).
--author("silviu.caragea").
 
 -export([
     bench_encoding/3,
@@ -63,15 +62,15 @@
 
 bench_encoding(Engine, Number, Concurrency) ->
     init(Engine),
-    Fun = fun() -> to_binary(Engine) end,
-    bench(Fun, Number, Concurrency).
+    bench(Engine, fun() -> to_binary(Engine) end, Number, Concurrency).
 
 bench_parsing(Engine, Number, Concurrency) ->
     init(Engine),
-    Fun = fun() -> parse(Engine, ?STANZA) end,
-    bench(Fun, Number, Concurrency).
+    bench(Engine, fun() -> parse(Engine, ?STANZA) end, Number, Concurrency).
 
-bench(Fun, Number, Concurrency) ->
+% internals
+
+bench(Engine, Fun, Number, Concurrency) ->
     Self = self(),
     List = lists:seq(1, Concurrency),
     LoopNumbers = Number div Concurrency,
@@ -81,14 +80,14 @@ bench(Fun, Number, Concurrency) ->
     [receive {Pid, done} -> ok end || Pid <- Pids],
     B = os:timestamp(),
 
-    print(Number, A, B).
+    print(Engine, Concurrency, Number, A, B).
 
-print(Num, A, B) ->
+print(Engine, Concurrency, Num, A, B) ->
     Microsecs = timer:now_diff(B, A),
     Milliseconds = Microsecs/1000,
     Secs = Milliseconds/1000,
     StanzaPerSec = Num/Secs,
-    io:format("### ~p ms ~.2f stanza/sec ~n", [Milliseconds, StanzaPerSec]).
+    io:format("### engine: ~p concurrency ~p -> ~p ms ~.2f stanza/sec ~n", [Engine, Concurrency, Milliseconds, StanzaPerSec]).
 
 loop(0, _Fun) ->
     ok;
