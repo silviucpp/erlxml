@@ -8,6 +8,7 @@
         kernel,
         stdlib
     ]},
+    {pkg_name, erlxml2},
     {env, []},
     {files, [
         "LICENSE*",

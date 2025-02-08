@@ -4,6 +4,7 @@
 
 [![Build Status](https://app.travis-ci.com/silviucpp/erlxml.svg?branch=master)](https://travis-ci.com/github/silviucpp/erlxml)
 [![GitHub](https://img.shields.io/github/license/silviucpp/erlxml)](https://github.com/silviucpp/erlxml/blob/master/LICENSE)
+[![Hex.pm](https://img.shields.io/hexpm/v/erlxml2)](https://hex.pm/packages/erlxml2)
 
 # Implementation notes
 
