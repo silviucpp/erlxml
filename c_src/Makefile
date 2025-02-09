@@ -37,6 +37,6 @@ ifeq ($(UNAME_SYS), darwin)
 endif
 
 CXXFLAGS += -DNDEBUG -I pugixml \
-			-g -Wextra -Werror -Wno-ignored-qualifiers -Wno-unused-const-variable -Wno-missing-field-initializers -fno-exceptions -fno-rtti -std=c++11
+			-g -Wextra -Werror -Wno-ignored-qualifiers -Wno-unused-const-variable -Wno-missing-field-initializers -fno-exceptions -fno-rtti -std=c++17
 
 LDFLAGS +=  -lstdc++
