@@ -37,7 +37,7 @@ reset_stream(Parser) ->
     erlxml_nif:reset_stream(Parser).
 
 -spec parse(iolist() | binary()) ->
-    {ok, [#xmlel{}]} | {error, reason()}.
+    {ok, #xmlel{}} | {error, reason()}.
 
 parse(Data) ->
     erlxml_nif:dom_parse(Data).
