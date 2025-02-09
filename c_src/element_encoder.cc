@@ -4,8 +4,10 @@
 #include "nif_utils.h"
 #include "erlxml_nif.h"
 #include "utf8_cleanup.h"
+#include "macros.h"
 
 #include <string.h>
+#include <string_view>
 
 static const int kXmlelArity = 4;
 static const int kXmlcdataArity = 2;
@@ -97,13 +99,13 @@ bool parse_attributes(ErlNifEnv* env, ERL_NIF_TERM list, pugi::xml_node& node)
         if(!enif_get_tuple(env, head, &arity, &items) || arity != 2)
             return false;
 
-        std::string key;
-        std::string value;
+        ErlNifBinary key;
+        ErlNifBinary value;
 
-        if(!get_string(env, items[0], &key) || !get_string(env, items[1], &value))
+        if(!get_binary(env, items[0], &key) || !get_binary(env, items[1], &value))
             return false;
 
-        node.append_attribute(key.c_str()).set_value(value.c_str());
+        node.append_attribute(STRING_VIEW(key)).set_value(STRING_VIEW(value));
     }
 
     return true;
@@ -133,12 +135,12 @@ bool term2pugi(ErlNifEnv* env, ERL_NIF_TERM element, pugi::xml_node& node)
     if(arity == kXmlelArity && enif_is_identical(ATOMS.atomXmlel, items[0]))
     {
         //parse xmlel
-        std::string name;
+        ErlNifBinary name;
 
-        if(!get_string(env, items[1], & name))
+        if(!get_binary(env, items[1], &name))
             return false;
 
-        pugi::xml_node element = node.append_child(name.c_str());
+        pugi::xml_node element = node.append_child(STRING_VIEW(name));
 
         if(!parse_attributes(env, items[2], element))
             return false;
@@ -148,12 +150,12 @@ bool term2pugi(ErlNifEnv* env, ERL_NIF_TERM element, pugi::xml_node& node)
     }
     else if(arity == kXmlcdataArity && enif_is_identical(ATOMS.atomXmlcdata, items[0]))
     {
-        std::string value;
+        ErlNifBinary value;
 
-        if(!get_string(env, items[1], &value))
+        if(!get_binary(env, items[1], &value))
             return false;
 
-        node.append_child(pugi::node_pcdata).set_value(value.c_str());
+        node.append_child(pugi::node_pcdata).set_value(STRING_VIEW(value));
     }
     else
     {

@@ -92,7 +92,7 @@ All tests are running with three different concurrency levels (how many erlang p
 Parse the same stanza defined in `benchmark/benchmark.erl` for 600000 times:
 
 ```sh
-make bench_encoding
+make bench_parsing
 ```
 
 | Library    | C1 (ms)      |   C5 (ms) | C10 (ms)  |
@@ -114,15 +114,16 @@ Encode the same erlang term defined in `benchmark/benchmark.erl` for 600000 time
 make bench_encoding
 ```
 
-|   Library   |   C1 (ms)    | C5 (ms) | C10 (ms)  |
-|:-----------:|:------------:|:-------:|:---------:|
-|  `erlxml`   |   1786.683   | 448.943 |  312.348  |
-|   `exml`    |   1383.223   | 334.816 |  236.011  |
-| `fast_xml`  |   1073.679   | 274.55  |  198.719  |
+|   Library   | C1 (ms)  | C5 (ms) | C10 (ms) |
+|:-----------:|:--------:|:-------:|:--------:|
+|  `erlxml`   | 1381.338 | 322.851 | 251.936  |
+|   `exml`    | 1333.54  | 301.625 | 234.295  |
+| `fast_xml`  | 1019.238 | 238.676 | 198.69   |
 
 Note:
 
-- `fast_xml` delivers the best performance, followed by `exml`, and `erlxml`.
+- `fast_xml` delivers the best performance, followed by `exml`, and `erlxml` with almost the same performance.
+- `erlxml` improved encoding performance in version `2.1.0` by removing unnecessary memory copy and string length computing.
 
 ##### Streaming parsing
 

@@ -66,19 +66,6 @@ bool get_binary(ErlNifEnv* env, ERL_NIF_TERM term, ErlNifBinary* bin)
     return enif_inspect_iolist_as_binary(env, term, bin);
 }
 
-bool get_string(ErlNifEnv *env, ERL_NIF_TERM term, std::string* var)
-{
-    ErlNifBinary bin;
-
-    if(get_binary(env, term, &bin))
-    {
-        *var = std::string(reinterpret_cast<const char*>(bin.data), bin.size);
-        return true;
-    }
-
-    return false;
-}
-
 bool get_boolean(ERL_NIF_TERM term, bool* val)
 {
     if(enif_is_identical(term, ATOMS.atomTrue))

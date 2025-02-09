@@ -62,10 +62,12 @@
 
 bench_encoding(Engine, Number, Concurrency) ->
     init(Engine),
+    to_binary_ok(Engine, to_binary(Engine)),
     bench(Engine, fun() -> to_binary(Engine) end, Number, Concurrency).
 
 bench_parsing(Engine, Number, Concurrency) ->
     init(Engine),
+    parse_ok(Engine, parse(Engine, ?STANZA)),
     bench(Engine, fun() -> parse(Engine, ?STANZA) end, Number, Concurrency).
 
 % internals
@@ -113,3 +115,12 @@ parse(exml, Data) ->
     exml:parse(Data);
 parse(fast_xml, Data) ->
     fxml_stream:parse_element(Data).
+
+to_binary_ok(_Engine, Value) ->
+    true == is_binary(Value).
+
+parse_ok(fast_xml, Data) ->
+    true == is_binary(Data);
+parse_ok(_, Data) ->
+    {ok, _} = Data.
+

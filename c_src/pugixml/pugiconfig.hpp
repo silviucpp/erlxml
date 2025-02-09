@@ -50,7 +50,7 @@
 #define PUGIXML_HAS_LONG_LONG
 
 // Uncomment this to enable support for std::string_view (usually enabled automatically)
-//   #define PUGIXML_HAS_STRING_VIEW
+#define PUGIXML_HAS_STRING_VIEW
 
 #endif
 
