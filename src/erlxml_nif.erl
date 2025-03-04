@@ -18,9 +18,7 @@
 %% nif functions
 
 load_nif() ->
-    SoName = get_nif_library_path(),
-    io:format(<<"Loading library: ~p ~n">>, [SoName]),
-    ok = erlang:load_nif(SoName, 0).
+    ok = erlang:load_nif(get_nif_library_path(), 0).
 
 get_nif_library_path() ->
     case code:priv_dir(erlxml) of

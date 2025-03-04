@@ -2,7 +2,7 @@
     {description, "erlxml - Erlang XML parsing library based on pugixml."},
     {licenses, ["MIT"]},
     {links,[{"Github","https://github.com/silviucpp/erlxml"}]},
-    {vsn, "2.1.0"},
+    {vsn, "2.1.1"},
     {registered, []},
     {applications, [
         kernel,
